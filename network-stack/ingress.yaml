@@ -10,6 +10,7 @@ spec:
    
       domain: string
       subdomain: string
+      serviceName: string
       servicePort: integer | default=80
 
       networkStack: string | default="network-stack-definition"
@@ -48,6 +49,6 @@ spec:
                 pathType: Prefix
                 backend:
                   service:
-                    name: ${schema.metadata.name}
+                    name: ${schema.spec.serviceName}
                     port:
                       number: ${schema.spec.servicePort}
