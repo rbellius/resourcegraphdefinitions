@@ -1,12 +1,12 @@
-apiVersion: kro.run/v1alpha1
-kind: IngressRequest
-metadata:
-  name: nowhere
-  namespace: argocd
-spec:
+# apiVersion: kro.run/v1alpha1
+# kind: IngressRequest
+# metadata:
+#  name: nowhere
+#  namespace: argocd
+#spec:
 
-  env: staging
+#  env: staging
 
-  subdomain: nowhere
-  domain: demo-123.duckdns.org
-  serviceName: argo-cd-argocd-server
+#  subdomain: nowhere
+#  domain: demo-123.duckdns.org
+#  serviceName: argo-cd-argocd-server
