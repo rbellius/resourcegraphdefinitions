@@ -27,7 +27,7 @@ spec:
           name: ${schema.metadata.name}
           namespace: ${schema.metadata.namespace}
           annotations:
-            cert-manager.io/cluster-issuer: lets-encrypt-acme-issuer-${schema.spec.env}
+            cert-manager.io/cluster-issuer: cert-manager-webhook-duckdns-${schema.spec.env}
             # cert-manager.io/cluster-issuer: acme-issuer-{{ .Values.env }}
             # external-dns.alpha.kubernetes.io/hostname: '{{ .Values.subdomain | default .Values.name }}.{{ .Values.domain }}'
             # external-dns.alpha.kubernetes.io/target: 192.168.12.184
@@ -37,7 +37,7 @@ spec:
 
       
           tls:
-          - secretName: cert-manager-webhook-duckdns
+          - secretName: cert-${schema.spec.env}
             hosts:
               - '*.${schema.spec.domain}'
 
