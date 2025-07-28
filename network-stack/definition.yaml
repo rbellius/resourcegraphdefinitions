@@ -6,6 +6,13 @@ spec:
   schema:
     apiVersion: v1alpha1
     kind: NetworkStack
+    # metadata:
+    #   labels:
+    #     app.kubernetes.io/name: network-stack
+    #     app.kubernetes.io/instance: mikrolab-network-stack
+    #     app.kubernetes.io/component: main-network-stack
+    #     app.kubernetes.io/part-of: mikrolab
+    #     app.kubernetes.io/managed-by: argocd
     spec:
         name: string
         domain: string
@@ -23,10 +30,11 @@ spec:
           class: string |  default="traefik"
 
         dns:
+          enabled: boolean | default=false
           token: string
           duckdns: boolean | default=false
           cloudflare: boolean | default=false
-          dynamicDns: boolean | default=true
+          dynamicDns: boolean | default=false
 
     # status:
     #   # Fields the controller will inject into instances status.
@@ -39,9 +47,24 @@ spec:
 
   # Define the resources this API will manage.
   resources:
+      # - id: argocdIngress
+      #   template:
+      #     apiVersion: kro.run/v1alpha1
+      #     kind: Ingress
+      #     metadata:
+      #       name: argocd
+      #       namespace: argocd
+      #     spec:
+
+      #       env: staging
+
+      #       subdomain: argocd
+      #       domain: ${schema.spec.domain}
+
+
       - id: certmanager
         includeWhen:
-          - ${schema.spec.dns.duckdns || schema.spec.dns.cloudflare} # Only include if the user wants to use DuckDNS or Cloudflare
+          - ${schema.spec.dns.enabled} # Only include if the user wants to use DuckDNS or Cloudflare
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -50,7 +73,14 @@ spec:
               namespace: argocd
               annotations:
                 argocd.argoproj.io/sync-wave: "-10"
-                
+              labels:
+              
+                app.kubernetes.io/name: cert-manager
+                app.kubernetes.io/instance: ${schema.metadata.name}
+                app.kubernetes.io/component: cert-manager
+                app.kubernetes.io/part-of: mikrolab
+                app.kubernetes.io/managed-by: argocd
+      
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
 
@@ -80,7 +110,10 @@ spec:
                     crds:
                       enabled: true
                       keep: false
-       
+                    # extraArgs:
+                    #   - --dns01-recursive-nameservers-only
+                    #   - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
+        
 
   
       - id: certManagerWebhookDuckdnsHelmChart
@@ -95,8 +128,15 @@ spec:
               name: cert-manager-duckdns-webhook
               namespace: argocd
               annotations:
-                argocd.argoproj.io/sync-wave: "-8"
-                
+                argocd.argoproj.io/sync-wave: "0"
+              labels:
+              
+                app.kubernetes.io/name: cert-manager-duckdns-webhook
+                app.kubernetes.io/instance: cert-manager-duckdns-webhook
+                app.kubernetes.io/component: cert-manager
+                app.kubernetes.io/part-of: mikrolab
+                app.kubernetes.io/managed-by: argocd
+
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
 
@@ -128,16 +168,16 @@ spec:
                       keep: false
 
                     token:
-                      value: ${schema.spec.dns.token}
+                      existingSecretName: duckdns-api-key-secret
                 
                     clusterIssuer:
                       email: ${schema.spec.email}
                       staging:
                         create: true
-                        name: lets-encrypt-acme-issuer-staging
+                        # name: lets-encrypt-acme-issuer-staging
                       production:
                         create: ${schema.spec.production}
-                        name: lets-encrypt-acme-issuer-production 
+                        # name: lets-encrypt-acme-issuer-production 
             
 
       - id: duckdnsddns 
@@ -151,6 +191,13 @@ spec:
             namespace: argocd
             annotations:
               argocd.argoproj.io/sync-wave: "-10"
+            labels:
+            
+              app.kubernetes.io/name: duckdns-ddns
+              app.kubernetes.io/instance: ${schema.metadata.name}-duckdns-ddns
+              app.kubernetes.io/component: cert-manager
+              app.kubernetes.io/part-of: mikrolab
+              app.kubernetes.io/managed-by: argocd
               
             finalizers:
               - resources-finalizer.argocd.argoproj.io
@@ -182,23 +229,3 @@ spec:
                     domain: ${schema.spec.domain}
                     token: ${schema.spec.dns.token}
 
-# ---
-# apiVersion: kro.run/v1alpha1
-# kind: NetworkStack
-# metadata:
-#   name: mobile-network-stack
-# spec:
-#     name: MobileFreeNetworkStack
-#     domain: demo-123.duckdns.org
-#     email: eddie.moya@gmail.com
-
-#     production: false
-
-#     ingress:
-#       class: traefik
-
-#     dns:
-#       token: 8f0446f9-7cb7-4412-a6ce-a51036614a17
-#       duckdns: true
-#       cloudflare: false
-#       dynamicDns: true
