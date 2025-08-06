@@ -87,7 +87,8 @@ spec:
               name: cert-manager
               namespace: argocd
               annotations:
-                argocd.argoproj.io/sync-wave: "-10"              
+                argocd.argoproj.io/instance: cert-manager-duckdns-ddns-application
+                # argocd.argoproj.io/sync-wave: "-10"              
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
@@ -193,8 +194,9 @@ spec:
             name: duckdns-ddns
             namespace: argocd
             annotations:
-              argocd.argoproj.io/sync-wave: "-10"
-              argocd.argoproj.io/hook: "PreSync"
+              argocd.argoproj.io/instance: cert-manager-duckdns-ddns-application
+              # argocd.argoproj.io/sync-wave: "-10"
+              # argocd.argoproj.io/hook: "PreSync"
               
             finalizers:
               - resources-finalizer.argocd.argoproj.io
