@@ -79,50 +79,50 @@ spec:
       #       domain: ${schema.spec.domain}
 
 
-      # - id: certmanager
-      #   includeWhen:
-      #     - ${schema.spec.dns.enabled} # Only include if the user wants to use DuckDNS or Cloudflare
-      #   template:
-      #       apiVersion: argoproj.io/v1alpha1
-      #       kind: Application
-      #       metadata:
-      #         name: cert-manager
-      #         namespace: argocd
-      #         annotations:
-      #           argocd.argoproj.io/sync-wave: "-10"              
+      - id: certManager
+        template:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Application
+            metadata:
+              name: cert-manager
+              namespace: argocd
+              annotations:
+                argocd.argoproj.io/sync-wave: "-10"              
       
-      #         finalizers:
-      #           - resources-finalizer.argocd.argoproj.io
+              finalizers:
+                - resources-finalizer.argocd.argoproj.io
 
-      #       spec:
-      #         project: default
+            spec:
+              project: default
 
-      #         syncPolicy:
-      #           automated:
-      #             selfHeal: true
-      #             prune: true
-      #             allowEmpty: true
+              syncPolicy:
+                automated:
+                  selfHeal: true
+                  prune: true
+                  allowEmpty: true
               
-      #           syncOptions:
-      #             - CreateNamespace=true
-      #             # - ApplyOutOfSyncOnly=true
+                syncOptions:
+                  - CreateNamespace=true
+                  # - ApplyOutOfSyncOnly=true
 
-      #         destination:
-      #           server: https://kubernetes.default.svc
-      #           namespace: cert-manager
+              destination:
+                server: https://kubernetes.default.svc
+                namespace: cert-manager
 
-      #         source:
-      #           repoURL: https://charts.jetstack.io
-      #           chart: cert-manager  
-      #           targetRevision: 1.17.1
-      #           helm:
-      #             valuesObject:
-      #               crds:
-      #                 enabled: true
-      #                 keep: false
-      #               # extraArgs:
-      #               #   - --dns01-recursive-nameservers-only
-      #               #   - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
+              source:
+                repoURL: https://charts.jetstack.io
+                chart: cert-manager  
+                targetRevision: 1.17.2
+                helm:
+                  valuesObject:
+                    crds:
+                      enabled: true
+                      keep: false
+                      
+                    enableCertificateOwnerRef: true
+                    extraArgs:
+                      - --dns01-recursive-nameservers-only
+                      - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
 
   
