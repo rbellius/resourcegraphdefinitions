@@ -127,11 +127,11 @@ spec:
         
 
   
-      - id: certManagerWebhookDuckdns
+      - id: certManagerDuckDnsWebhook
         includeWhen:
           - ${schema.spec.dns.providers.duckdns.enabled} # Only include if the user wants to use DuckDNS
-        # readyWhen:
-        #   - ${certManagerHelmChart.status.conditions} # Ensure cert-manager is ready before deploying the webhook
+        readyWhen:
+          - ${certManager.status.conditions} # Ensure cert-manager is ready before deploying the webhook
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -173,7 +173,7 @@ spec:
 
                     groupName: acme.rbellius.com
 
-                    fullnameOverride: "cert-manager-webook-duckdns"
+                    fullnameOverride: "cert-manager-duckdns-webook"
 
                     clusterIssuer:
                       email: eddie.moya@gmail.com
