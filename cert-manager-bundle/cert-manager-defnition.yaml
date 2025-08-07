@@ -127,6 +127,50 @@ spec:
                       - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
 
+      - id: certManagerCloudflare
+        includeWhen:
+          - ${schema.spec.dns.providers.cloudflare.enabled} # Only include if the user wants to use Cloudflare
+        template:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Application
+            metadata:
+              name: cert-manager-cloudflare
+              namespace: argocd
+              annotations:
+                argocd.argoproj.io/instance: cert-manager-cloudflare-application
+                # argocd.argoproj.io/sync-wave: "-10" 
+                # argocd.argoproj.io/hook: "PreSync"             
+      
+              finalizers:
+                - resources-finalizer.argocd.argoproj.io
+
+            spec:
+              project: default
+
+              syncPolicy:
+                automated:
+                  selfHeal: true
+                  prune: true
+                  allowEmpty: true
+              
+                syncOptions:
+                  - CreateNamespace=true
+                  # - ApplyOutOfSyncOnly=true
+
+              destination:
+                server: https://kubernetes.default.svc
+                namespace: cert-manager
+
+              source:
+                repoURL: git@github.com:rbellius/charts.git
+                chart: cert-manager-cloudflare
+                targetRevision: main
+                helm:
+                  valuesObject:
+                    provider: cloudflare
+                    email: ${schema.spec.dns.providers.cloudflare.email}
+                    domain: ${schema.spec.dns.providers.cloudflare.domain}
+
   
       - id: certManagerDuckDnsWebhook
         includeWhen:
