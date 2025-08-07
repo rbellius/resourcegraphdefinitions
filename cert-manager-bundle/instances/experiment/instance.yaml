@@ -1,0 +1,22 @@
+apiVersion: kro.run/v1alpha1
+kind: CertManangerBundle
+metadata:
+  name: cert-manager-bundle
+spec:
+
+  production: false
+
+  ingress:
+    class: "traefik"
+
+  dns:
+    providers: 
+      duckdns:
+        enabled: true
+        email: eddie.moya@gmail.com
+        domain: mikrolab.duckdns.org
+        dynamic: true
+      cloudflare:
+        enabled: true
+        email: eddie.moya@gmail.com
+        domain: cloudbreaker.me
