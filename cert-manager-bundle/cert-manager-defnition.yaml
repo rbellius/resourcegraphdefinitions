@@ -79,7 +79,7 @@ spec:
       #       domain: ${schema.spec.domain}
 
 
-      - id: certmanager
+      - id: certManager
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -171,12 +171,12 @@ spec:
                       enabled: true
                       keep: false
 
-                    groupName: acme.rbellius.com
+                    groupName: 'acme.${schema.spec.dns.providers.duckdns.domain}-acme'
 
                     fullnameOverride: "cert-manager-duckdns-webook"
 
                     clusterIssuer:
-                      email: eddie.moya@gmail.com
+                      email: ${schema.spec.dns.providers.duckdns.email}
 
                       ## A defect in this chart prevents the staging issuer from being created if production is enabled.
                       production:
