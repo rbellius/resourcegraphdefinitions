@@ -79,7 +79,7 @@ spec:
       #       domain: ${schema.spec.domain}
 
 
-      - id: certManager
+      - id: certmanager
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -131,7 +131,7 @@ spec:
         includeWhen:
           - ${schema.spec.dns.providers.duckdns.enabled} # Only include if the user wants to use DuckDNS
         readyWhen:
-          - ${certManager.status.conditions} # Ensure cert-manager is ready before deploying the webhook
+          - ${certmanager.status.conditions} # Ensure cert-manager is ready before deploying the webhook
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
