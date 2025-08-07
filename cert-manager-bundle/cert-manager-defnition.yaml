@@ -163,7 +163,7 @@ spec:
 
               source:
                 repoURL: git@github.com:rbellius/charts.git
-                chart: cert-manager-cloudflare
+                path: cert-manager-cloudflare
                 targetRevision: main
                 helm:
                   valuesObject:
