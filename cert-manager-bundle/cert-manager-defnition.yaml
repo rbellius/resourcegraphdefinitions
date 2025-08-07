@@ -21,6 +21,7 @@ spec:
               domain: string 
             duckdns:
               enabled: boolean | default=true
+              email: string
               domain: string
               dynamic: boolean | default=true   
   
