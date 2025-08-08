@@ -20,7 +20,10 @@ spec:
       serviceName: string
       servicePort: integer | default=80
 
-      provider: string | default="cloudflare" enum="cloudflare,duckdns"
+      providers:
+        builtin: true
+        duckdns: true
+
       env: string | default="staging" enum="staging,production"
 
       certManagerBundle: string | default="cert-manager-bundle" enum="cert-manager-bundle"
@@ -39,16 +42,16 @@ spec:
           #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
-    - id: ingressCloudflare
+    - id: ingressBuiltInProvider
       includeWhen:
-        - ${schema.spec.provider == 'cloudflare'}
+        - ${schema.spec.dns.providers.builtin.enabled && schema.spec.providers.builtin}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
         metadata:
           name: ${schema.metadata.name}
           annotations:
-            cert-manager.io/cluster-issuer: 'cloudflare-letsencrypt-${schema.spec.env}'
+            cert-manager.io/cluster-issuer: '${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}'
           # finalizers:
           #   - resources-finalizer.argocd.argoproj.io
             
@@ -67,10 +70,10 @@ spec:
           tls:
           - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
             hosts:
-              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.cloudflare.domain}'
+              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
 
           rules:
-          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.cloudflare.domain}'
+          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
             http:
               paths:
               - path: /
@@ -81,9 +84,10 @@ spec:
                     port:
                       number: ${schema.spec.servicePort}
 
+      ## Eliminate duplicate if CEL expressions allow the dynamic chaining for property names of providers. Otherwise we would need iterable loops or conditional gates within the spec
     - id: ingressDuckdns
       includeWhen:
-        - ${schema.spec.provider == 'duckdns'}
+        - ${schema.spec.providers.duckdns}
 
       template:
         apiVersion: networking.k8s.io/v1
@@ -110,7 +114,7 @@ spec:
           tls:
           - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
             hosts:
-              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain  }'
+              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
 
           rules:
           - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
