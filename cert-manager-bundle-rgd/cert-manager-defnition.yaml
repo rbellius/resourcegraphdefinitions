@@ -314,6 +314,8 @@ spec:
                   getIpCommand: kubectl -n kube-system get svc traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
 
+
+## create optional "install" specs that add the applications for certain dependanies. ingress.install: true   | maybe ingressRequest.install:class
     
       # - id: ingressRequest
       #   includeWhen:
