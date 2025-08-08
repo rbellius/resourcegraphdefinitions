@@ -298,41 +298,41 @@ spec:
 
 
     
-      - id: ingressRequest
-        includeWhen:
-          - ${schema.spec.ingress.requests}
-        template:
-          apiVersion: argoproj.io/v1alpha1
-          kind: Application
-          metadata:
-            name: ingress-request
-            namespace: argocd
-            annotations:
-              argocd.argoproj.io/instance: cert-manager-bundle
+      # - id: ingressRequest
+      #   includeWhen:
+      #     - ${schema.spec.ingress.requests}
+      #   template:
+      #     apiVersion: argoproj.io/v1alpha1
+      #     kind: Application
+      #     metadata:
+      #       name: ingress-request
+      #       namespace: argocd
+      #       annotations:
+      #         argocd.argoproj.io/instance: cert-manager-bundle
               
-            finalizers:
-              - resources-finalizer.argocd.argoproj.io
+      #       finalizers:
+      #         - resources-finalizer.argocd.argoproj.io
 
-          spec:
-            project: default
+      #     spec:
+      #       project: default
 
-            syncPolicy:
-              automated:
-                selfHeal: true
-                prune: true
-                allowEmpty: true
+      #       syncPolicy:
+      #         automated:
+      #           selfHeal: true
+      #           prune: true
+      #           allowEmpty: true
             
-              syncOptions:
-                - CreateNamespace=true
-                # - ApplyOutOfSyncOnly=true
+      #         syncOptions:
+      #           - CreateNamespace=true
+      #           # - ApplyOutOfSyncOnly=true
 
-            destination:
-              server: https://kubernetes.default.svc
-              namespace: cert-manager
+      #       destination:
+      #         server: https://kubernetes.default.svc
+      #         namespace: cert-manager
 
-            source:
-              repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
-              path: ingress-request-rgd
-              targetRevision: main
-              # helm:
+      #       source:
+      #         repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+      #         path: ingress-request-rgd
+      #         targetRevision: main
+      #         # helm:
               #   valuesObject:
