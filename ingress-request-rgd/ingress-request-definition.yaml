@@ -18,11 +18,11 @@ spec:
       serviceName: string
       servicePort: integer | default=80
 
-      certManagerBundle: string | default="cert-manager-bundle"
-
       provider: string | default="cloudflare" enum="cloudflare,duckdns"
-
       env: string | default="staging" enum="staging,production"
+
+      certManagerBundle: string | default="cert-manager-bundle" enum="cert-manager-bundle"
+
 
   resources:
 
