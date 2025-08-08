@@ -32,11 +32,11 @@ spec:
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
-            labels:
-                app.kubernetes.io/name:       kro-application
-                app.kubernetes.io/instance:   arkrocd-bundle
-                app.kubernetes.io/component:  kro
-                app.kubernetes.io/part-of:    mikrolab
+              labels:
+                  app.kubernetes.io/name:       kro-application
+                  app.kubernetes.io/instance:   arkrocd-bundle
+                  app.kubernetes.io/component:  kro
+                  app.kubernetes.io/part-of:    mikrolab
             spec:
 
               project: default
@@ -78,11 +78,11 @@ spec:
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
-            labels:
-                app.kubernetes.io/name:       argocd-application
-                app.kubernetes.io/instance:   arkrocd-bundle
-                app.kubernetes.io/component:  argocd
-                app.kubernetes.io/part-of:    mikrolab
+              labels:
+                  app.kubernetes.io/name:       argocd-application
+                  app.kubernetes.io/instance:   arkrocd-bundle
+                  app.kubernetes.io/component:  argocd
+                  app.kubernetes.io/part-of:    mikrolab
 
 
             spec:
