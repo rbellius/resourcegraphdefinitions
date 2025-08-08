@@ -32,7 +32,7 @@ spec:
               dynamic: boolean | default=true
             builtin:
               enabled: boolean | default=false
-              dynamic: boolean | default=false enum="false" # No dynamic DNS for builtin providers yet
+              dynamic: boolean | default=false # No dynamic DNS for builtin providers yet
               provider: string | default="cloudflare" enum="cloudflare" # cloudflare is the only builtin provider for now
               email: string 
               domain: string
