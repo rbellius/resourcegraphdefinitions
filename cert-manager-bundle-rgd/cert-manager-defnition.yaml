@@ -88,7 +88,7 @@ spec:
               name: cert-manager
               namespace: argocd
               annotations:
-                argocd.argoproj.io/instance: cert-manager-duckdns-ddns-application
+                argocd.argoproj.io/instance: cert-manager-bundle
                 # argocd.argoproj.io/sync-wave: "-10"              
       
               finalizers:
@@ -137,7 +137,7 @@ spec:
               name: cert-manager-cloudflare
               namespace: argocd
               annotations:
-                argocd.argoproj.io/instance: cert-manager-cloudflare-application
+                argocd.argoproj.io/instance: cert-manager-bundle
                 # argocd.argoproj.io/sync-wave: "-10" 
                 # argocd.argoproj.io/hook: "PreSync"             
       
@@ -184,7 +184,8 @@ spec:
               name: cert-manager-duckdns-webhook
               namespace: argocd
               annotations:
-                argocd.argoproj.io/sync-wave: "0"
+                # argocd.argoproj.io/sync-wave: "0"
+                argocd.argoproj.io/instance: cert-manager-bundle
 
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
@@ -247,7 +248,7 @@ spec:
             name: duckdns-ddns
             namespace: argocd
             annotations:
-              argocd.argoproj.io/instance: cert-manager-duckdns-ddns-application
+              argocd.argoproj.io/instance: cert-manager-bundle
               # argocd.argoproj.io/sync-wave: "-10"
               # argocd.argoproj.io/hook: "PreSync"
               
