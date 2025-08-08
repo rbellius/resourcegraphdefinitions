@@ -2,6 +2,11 @@ apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
   name: cert-manager-bundle
+  labels:
+    app.kubernetes.io/name: cert-manager-bundle-rgd
+    app.kubernetes.io/instance: cert-manager-bundle
+    app.kubernetes.io/component: rgd
+    app.kubernetes.io/part-of: mikrolab
 spec:
   schema:
     apiVersion: v1alpha1
@@ -152,7 +157,11 @@ spec:
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
-
+              labels:
+                    app.kubernetes.io/name:       cert-manager-cloudflare-application
+                    app.kubernetes.io/instance:   cert-manager-bundle
+                    app.kubernetes.io/component:  cert-manager-cloudflare-webhook
+                    app.kubernetes.io/part-of:    mikrolab
             spec:
               project: default
 
@@ -198,7 +207,11 @@ spec:
 
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
-
+            labels:
+                app.kubernetes.io/name:       cert-manager-duckdns-webhook-application
+                app.kubernetes.io/instance:   cert-manager-bundle
+                app.kubernetes.io/component:  cert-manager-duckdns-webhook
+                app.kubernetes.io/part-of:    mikrolab
             spec:
               project: default
 
@@ -263,7 +276,11 @@ spec:
               
             finalizers:
               - resources-finalizer.argocd.argoproj.io
-
+            labels:
+                app.kubernetes.io/name:       duckdns-ddns-application
+                app.kubernetes.io/instance:   cert-manager-bundle
+                app.kubernetes.io/component:  duckdns-ddns
+                app.kubernetes.io/part-of:    mikrolab
           spec:
             project: default
 

@@ -2,6 +2,11 @@ apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
   name: arkrocd-bundle
+  labels:
+    app.kubernetes.io/name: arkrocd-bundle-rgd
+    app.kubernetes.io/instance: arkrocd-bundle
+    app.kubernetes.io/component: rgd
+    app.kubernetes.io/part-of: mikrolab
 spec:
   schema:
     apiVersion: v1alpha1
@@ -27,7 +32,11 @@ spec:
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
-            
+            labels:
+                app.kubernetes.io/name:       kro-application
+                app.kubernetes.io/instance:   arkrocd-bundle
+                app.kubernetes.io/component:  kro
+                app.kubernetes.io/part-of:    mikrolab
             spec:
 
               project: default
@@ -61,7 +70,7 @@ spec:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
             metadata:
-              name: cert-manager
+              name: argocd
               namespace: argocd
               annotations:
                 argocd.argoproj.io/instance: argocd
@@ -69,6 +78,12 @@ spec:
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
+            labels:
+                app.kubernetes.io/name:       argocd-application
+                app.kubernetes.io/instance:   arkrocd-bundle
+                app.kubernetes.io/component:  argocd
+                app.kubernetes.io/part-of:    mikrolab
+
 
             spec:
               project: default
