@@ -57,8 +57,8 @@ spec:
               
               source:
                 repoURL: git@github.com:rbellius/kro.git
-                targetRevision: 0.3.0
-                chart: helm
+                targetRevision: main
+                path: helm
                 helm:
                   valuesObject:
                     crds:
