@@ -300,7 +300,7 @@ spec:
     
       - id: ingressRequest
         includeWhen:
-          - ${schema.spec.dns.providers.duckdns.dynamic}
+          - ${schema.spec.ingress.requests}
         template:
           apiVersion: argoproj.io/v1alpha1
           kind: Application
