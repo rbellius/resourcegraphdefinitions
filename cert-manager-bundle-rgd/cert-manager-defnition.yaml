@@ -21,15 +21,24 @@ spec:
 
         dns:
           providers: 
-            cloudflare:
-              enabled: boolean | default=false
-              email: string
-              domain: string 
+            # cloudflare:
+            #   enabled: boolean | default=false
+            #   email: string
+            #   domain: string 
             duckdns:
               enabled: boolean | default=true
               email: string
               domain: string
-              dynamic: boolean | default=true   
+              dynamic: boolean | default=true
+            builtin:
+              enabled: boolean | default=false
+              dynamic: boolean | default=false enum="false" # No dynamic DNS for builtin providers yet
+              provider: string | default="cloudflare" enum="cloudflare" # cloudflare is the only builtin provider for now
+              email: string 
+              domain: string
+
+
+
 
         # dns2:
         #   email:        string
@@ -141,14 +150,73 @@ spec:
                       - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
 
-      - id: certManagerCloudflare
+
+
+
+
+      # - id: certManagerCloudflareIssuerStaging
+      #   includeWhen:
+      #     - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
+      #   template:
+      #     apiVersion: cert-manager.io/v1
+      #     kind: ClusterIssuer
+
+      #     metadata:
+      #       name: cloudflare-letsencrypt-staging
+      #       annotations:
+      #         argocd.argoproj.io/sync-wave: "5"
+      #         argocd.argoproj.io/instance: cert-manager-cloudflare
+      #       labels:
+      #         app.kubernetes.io/instance: cert-manager
+      #         app.kubernetes.io/component: cloudflare-issuer-staging
+      #         app.kubernetes.io/name: cert-manager-cloudflare-issuer-staging
+      #         app.kubernetes.io/part-of: cert-manager
+      #     spec:
+      #       acme:
+
+      #         # Email address used for ACME registration
+      #         email: {{ .Values.email }}
+
+      #         # Let's Encrypt Staging
+      #         server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+      #         # Let's Encrypt Production
+      #         # server: https://acme-v02.api.letsencrypt.org/directory
+
+
+      #         privateKeySecretRef:
+      #           name: issuer-account-key
+
+      #         solvers:
+
+      #         # DNS01 challenge
+      #         - dns01:
+
+      #             # Cloudflare DNS01 challenge provider
+      #             cloudflare:
+
+      #               # Cloudflare acccount email
+      #               email: {{ .Values.email }}
+
+      #               # Cloudflare Orgin CA API Token
+      #               apiKeySecretRef:
+      #                 name: '{{ .Values.provider }}-api-key-secret'
+      #                 key: '{{ .Values.provider }}'
+      #           selector:
+      #             dnsZones:
+      #             - '{{ .Values.domain }}'
+
+
+
+
+      - id: certManagerBuiltInProvider
         includeWhen:
-          - ${schema.spec.dns.providers.cloudflare.enabled} # Only include if the user wants to use Cloudflare
+          - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
             metadata:
-              name: cert-manager-cloudflare
+              name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
               namespace: argocd
               annotations:
                 argocd.argoproj.io/instance: cert-manager-bundle
@@ -158,10 +226,10 @@ spec:
               finalizers:
                 - resources-finalizer.argocd.argoproj.io
               labels:
-                    app.kubernetes.io/name:       cert-manager-cloudflare-application
-                    app.kubernetes.io/instance:   cert-manager-bundle
-                    app.kubernetes.io/component:  cert-manager-cloudflare-webhook
-                    app.kubernetes.io/part-of:    mikrolab
+                    app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
+                    app.kubernetes.io/instance:   'cert-manager-bundle'
+                    app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
+                    app.kubernetes.io/part-of:    'mikrolab'
             spec:
               project: default
 
@@ -181,14 +249,13 @@ spec:
 
               source:
                 repoURL: git@github.com:rbellius/charts.git
-                path: cert-manager-cloudflare
+                path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
                 targetRevision: main
                 helm:
                   valuesObject:
-                    provider: cloudflare
-                    email: ${schema.spec.dns.providers.cloudflare.email}
-                    domain: ${schema.spec.dns.providers.cloudflare.domain}
-
+                    provider: ${schema.spec.dns.providers.builtin.provider}
+                    email: ${schema.spec.dns.providers.builtin.email}
+                    domain: ${schema.spec.dns.providers.builtin.domain}
   
       - id: certManagerDuckDnsWebhook
         includeWhen:
