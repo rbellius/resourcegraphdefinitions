@@ -2,12 +2,14 @@ apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
   name: ingress-request-definition
+  annotations:
+    argocd.argoproj.io/instance: ingress-request-definition
   labels:
     app.kubernetes.io/name: ingress-request
     app.kubernetes.io/instance: ingress-request
     app.kubernetes.io/component: rgd
     app.kubernetes.io/part-of: mikrolab
-    app.kubernetes.io/managed-by: argocd
+    app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
 spec:
   schema:
     apiVersion: v1alpha1
