@@ -47,7 +47,7 @@ spec:
                 namespace: kro
               
               source:
-                repoURL: https://github.com/rbellius/kro.git
+                repoURL: git@github.com:rbellius/kro.git
                 targetRevision: main
                 path: helm
                 helm:
