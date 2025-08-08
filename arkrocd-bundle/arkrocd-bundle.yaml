@@ -49,7 +49,7 @@ spec:
               source:
                 repoURL: git@github.com:rbellius/kro.git
                 targetRevision: main
-                path: helm
+                chart: helm
                 helm:
                   valuesObject:
                     crds:
