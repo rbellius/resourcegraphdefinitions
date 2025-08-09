@@ -181,10 +181,10 @@ spec:
 
       - id: ingressConfigGenerator
         includeWhen:
-          # - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
-          - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
+          - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
+          # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
         # readyWhen:
-        #   - ${certManager.status.state == "ACTIVE"} # Ensure the configmap is created before using it"}
+          - ${ingressConfigGenerator.status.state == "ACTIVE"} # Ensure the configmap is created before using it"}
         template:
           apiVersion: v1
           kind: ConfigMap
