@@ -21,8 +21,8 @@ spec:
       servicePort: integer | default=80
 
       providers:
-        builtin: bool | default=false
-        duckdns: bool | default=true
+        builtin: boolean | default=false
+        duckdns: boolean | default=true
 
       env: string | default="staging" enum="staging,production"
 
