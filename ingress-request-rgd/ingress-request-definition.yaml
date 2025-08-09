@@ -83,7 +83,7 @@ spec:
               - '${schema.spec.subdomain}.${ingressConfig.data.?domain}'
 
           rules:
-          - host: '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
+          - host: '${schema.spec.subdomain}.${ingressConfig.data.?domain}'
             http:
               paths:
               - path: /
