@@ -44,7 +44,7 @@ spec:
 
     - id: ingressBuiltInProvider
       includeWhen:
-        - ${schema.spec.dns.providers.builtin}
+        - ${schema.spec.providers.builtin}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
