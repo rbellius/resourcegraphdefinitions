@@ -44,7 +44,7 @@ spec:
 
     - id: ingressBuiltInProvider
       includeWhen:
-        - ${certManagerBundle.spec.dns.providers.builtin.enabled && schema.spec.providers.builtin}
+        - ${certManagerBundle.spec.dns.providers.builtin.enabled}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
