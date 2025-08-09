@@ -91,7 +91,7 @@ spec:
 
               providers:
                 duckdns: ${schema.spec.provider == "duckdns"}
-                cloudflare: ${schema.spec.provider == "cloudflare"}
+                builtin: ${schema.spec.provider == "cloudflare"}
 
               env: ${schema.spec.env}
 
