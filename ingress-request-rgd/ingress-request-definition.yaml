@@ -42,24 +42,26 @@ spec:
           #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
-    - id: ingressConfigMap
-      externalRef:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: ingress-config-configmap
-          namespace: cert-manager
+    # - id: ingressConfigMap
+    #   externalRef:
+    #     apiVersion: v1
+    #     kind: ConfigMap
+    #     metadata:
+    #       name: ingress-config-${schema.spec.dns.providers.builtin.provider}
+    #       namespace: cert-manager
 
 
 
     - id: ingressBuiltInProvider
+      includeWhen:
+        - ${schema.spec.providers.builtin}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
         metadata:
           name: ${schema.metadata.name}
           annotations:
-            cert-manager.io/cluster-issuer: '${ingressConfigMap.data.clusterIssuer}'
+            cert-manager.io/cluster-issuer: '${certManagerBundle.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}'
           # finalizers:
           #   - resources-finalizer.argocd.argoproj.io
             
@@ -72,16 +74,16 @@ spec:
 
 
         spec: 
-          ingressClassName: ${ingressConfigMap.data.ingressClass}
+          ingressClassName: ${certManagerBundle.spec.ingress.class}
 
       
           tls:
           - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
             hosts:
-              - '${schema.spec.subdomain}.${ingressConfigMap.data.domain}'
+              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
 
           rules:
-          - host: '${schema.spec.subdomain}.${ingressConfigMap.data.domain}'
+          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
             http:
               paths:
               - path: /
@@ -93,45 +95,45 @@ spec:
                       number: ${schema.spec.servicePort}
 
       ## Eliminate duplicate if CEL expressions allow the dynamic chaining for property names of providers. Otherwise we would need iterable loops or conditional gates within the spec
-    # - id: ingressDuckdns
-    #   includeWhen:
-    #     - ${schema.spec.providers.duckdns}
+    - id: ingressDuckdns
+      includeWhen:
+        - ${schema.spec.providers.duckdns}
 
-    #   template:
-    #     apiVersion: networking.k8s.io/v1
-    #     kind: Ingress
-    #     metadata:
-    #       name: ${schema.metadata.name}
-    #       annotations:
-    #         cert-manager.io/cluster-issuer: 'duckdns-letsencrypt-${schema.spec.env}'
-    #       finalizers:
-    #           # - resources-finalizer.argocd.argoproj.io
+      template:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: ${schema.metadata.name}
+          annotations:
+            cert-manager.io/cluster-issuer: 'duckdns-letsencrypt-${schema.spec.env}'
+          finalizers:
+              # - resources-finalizer.argocd.argoproj.io
 
-    #       labels:
-    #         app.kubernetes.io/instance: ${schema.metadata.name}
-    #         app.kubernetes.io/name: ingress
-    #         app.kubernetes.io/component: ingress
-    #         app.kubernetes.io/part-of: ${schema.metadata.namespace}
-    #         # app.kubernetes.io/managed-by: kro
+          labels:
+            app.kubernetes.io/instance: ${schema.metadata.name}
+            app.kubernetes.io/name: ingress
+            app.kubernetes.io/component: ingress
+            app.kubernetes.io/part-of: ${schema.metadata.namespace}
+            # app.kubernetes.io/managed-by: kro
 
 
-    #     spec: 
-    #       ingressClassName: ${certManagerBundle.spec.ingress.class}
+        spec: 
+          ingressClassName: ${certManagerBundle.spec.ingress.class}
 
       
-    #       tls:
-    #       - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
-    #         hosts:
-    #           - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
+          tls:
+          - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
+            hosts:
+              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
 
-    #       rules:
-    #       - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
-    #         http:
-    #           paths:
-    #           - path: /
-    #             pathType: Prefix
-    #             backend:
-    #               service:
-    #                 name: ${schema.spec.serviceName}
-    #                 port:
-    #                   number: ${schema.spec.servicePort}
+          rules:
+          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: ${schema.spec.serviceName}
+                    port:
+                      number: ${schema.spec.servicePort}
