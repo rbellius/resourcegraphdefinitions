@@ -28,15 +28,15 @@ spec:
 
   resources:
 
-    # - id: certManagerBundle
-    #   externalRef:
-    #     apiVersion: kro.run/v1alpha1
-    #     kind: CertManangerBundle
-    #     metadata:
-    #       name: cert-manager-bundle
-    #       namespace: cert-manager
-    #       # annotations:
-    #       #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
+    - id: certManagerBundle
+      externalRef:
+        apiVersion: kro.run/v1alpha1
+        kind: CertManangerBundle
+        metadata:
+          name: cert-manager-bundle
+          namespace: cert-manager
+          # annotations:
+          #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
     - id: ingressConfig
@@ -51,7 +51,7 @@ spec:
 
     - id: ingressGenerator
       includeWhen:
-        - ${ingressConfig.status.state == "Ready" && ingressConfig.data.?ingressClass == "traefik"}
+        - ${ingressConfig.status.state == "Ready" && ingressConfig.status.data.?ingressClass != null && ingressConfig.status.data.?domain != null && ingressConfig.status.data.?clusterIssuer != null}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
