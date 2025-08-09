@@ -23,8 +23,8 @@ spec:
         name: string
         port: integer | default=80
 
-    status:
-      ingressConfigAvailable: ${ingressConfig.status.conditions}
+    # status:
+    #   ingressConfigAvailable: ${ingressConfig.status.conditions}
 
 
   resources:
