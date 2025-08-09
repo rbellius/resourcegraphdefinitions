@@ -86,7 +86,7 @@ spec:
 
       - id: certmanager
         readyWhen:
-          - ${certmanager.status.conditions == "Ready"} # Ensure cert-manager is ready before deploying the issuer
+          - ${certmanager.status.state == "Ready"} # Ensure cert-manager is ready before deploying the issuer
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -137,64 +137,64 @@ spec:
 
 
 
-      # - id: certManagerBuiltInIssuer
-      #   readyWhen:
-      #     - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
-      #   includeWhen:
-      #     - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
-      #   template:
-      #     apiVersion: cert-manager.io/v1
-      #     kind: ClusterIssuer
+      - id: certManagerBuiltInIssuer
+        readyWhen:
+          - ${certmanager.status.conditions == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
+        includeWhen:
+          - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
+        template:
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
 
-      #     metadata:
-      #       name: ${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}
-      #       annotations:
-      #         argocd.argoproj.io/sync-wave: "5"
-      #         argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
-      #         rbellius.com/cert-manager-condition: ${certManager.status.?state}
-      #       finalizers:
-      #         - resources-finalizer.argocd.argoproj.io
+          metadata:
+            name: ${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}
+            annotations:
+              argocd.argoproj.io/sync-wave: "5"
+              argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
+              rbellius.com/cert-manager-condition: ${certManager.status.?state}
+            finalizers:
+              - resources-finalizer.argocd.argoproj.io
 
-      #       labels:
-      #         app.kubernetes.io/instance: 'cert-manager'
-      #         app.kubernetes.io/component: '${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}'
-      #         app.kubernetes.io/name: cert-manager-${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}
-      #         app.kubernetes.io/part-of: cert-manager
-      #     spec:
-      #       acme:
+            labels:
+              app.kubernetes.io/instance: 'cert-manager'
+              app.kubernetes.io/component: '${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}'
+              app.kubernetes.io/name: cert-manager-${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}
+              app.kubernetes.io/part-of: cert-manager
+          spec:
+            acme:
 
-      #         # Email address used for ACME registration
-      #         email: ${schema.spec.dns.providers.builtin.email}
+              # Email address used for ACME registration
+              email: ${schema.spec.dns.providers.builtin.email}
 
-      #         # Let's Encrypt Staging
-      #         server: https://acme-staging-v02.api.letsencrypt.org/directory
+              # Let's Encrypt Staging
+              server: https://acme-staging-v02.api.letsencrypt.org/directory
 
-      #         # Let's Encrypt Production
-      #         # server: https://acme-v02.api.letsencrypt.org/directory
+              # Let's Encrypt Production
+              # server: https://acme-v02.api.letsencrypt.org/directory
 
 
-      #         privateKeySecretRef:
-      #           name: issuer-account-key
+              privateKeySecretRef:
+                name: issuer-account-key
 
-      #         solvers:
+              solvers:
 
-      #         # DNS01 challenge
-      #         - dns01:
+              # DNS01 challenge
+              - dns01:
 
-      #             # Cloudflare DNS01 challenge provider
-      #             # ${schema.spec.dns.providers.builtin.provider}:
-      #             cloudflare:
+                  # Cloudflare DNS01 challenge provider
+                  # ${schema.spec.dns.providers.builtin.provider}:
+                  cloudflare:
 
-      #               # Cloudflare acccount email
-      #               email: ${schema.spec.dns.providers.builtin.email}
+                    # Cloudflare acccount email
+                    email: ${schema.spec.dns.providers.builtin.email}
 
-      #               # Cloudflare Orgin CA API Token
-      #               apiKeySecretRef:
-      #                 name: '${schema.spec.dns.providers.builtin.provider}-api-key-secret'
-      #                 key: '${schema.spec.dns.providers.builtin.provider}'
-      #           selector:
-      #             dnsZones:
-      #             - '${schema.spec.dns.providers.builtin.domain}'
+                    # Cloudflare Orgin CA API Token
+                    apiKeySecretRef:
+                      name: '${schema.spec.dns.providers.builtin.provider}-api-key-secret'
+                      key: '${schema.spec.dns.providers.builtin.provider}'
+                selector:
+                  dnsZones:
+                  - '${schema.spec.dns.providers.builtin.domain}'
 
 
 
