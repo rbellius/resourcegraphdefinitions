@@ -86,7 +86,7 @@ spec:
 
       - id: certmanager
         readyWhen:
-          - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
+          - ${certmanager.status.conditions == "Ready"} # Ensure cert-manager is ready before deploying the issuer
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
