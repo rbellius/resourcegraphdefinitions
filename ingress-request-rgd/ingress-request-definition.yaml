@@ -33,15 +33,15 @@ spec:
 
 
 
-    - id: certManagerBundle
-      externalRef:
-        apiVersion: kro.run/v1alpha1
-        kind: CertManangerBundle
-        metadata:
-          name: cert-manager-bundle
-          namespace: cert-manager
-          # annotations:
-          #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
+    # - id: certManagerBundle
+    #   externalRef:
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: CertManangerBundle
+    #     metadata:
+    #       name: cert-manager-bundle
+    #       namespace: cert-manager
+    #       # annotations:
+    #       #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
     - id: ingressConfig
