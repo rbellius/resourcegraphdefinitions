@@ -51,7 +51,7 @@ spec:
 
     - id: ingressGenerator
       includeWhen:
-        - ${ingressConfig.status.state == "Ready"}
+        - ${ingressConfig.status.state == "Ready" && ingressConfig.data.?ingressClass == "traefik"}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
