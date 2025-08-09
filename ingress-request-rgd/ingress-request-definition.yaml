@@ -40,6 +40,8 @@ spec:
 
 
     - id: ingressConfig
+      readyWhen:
+        - ${ingressConfig.status.state == "Ready"}
       externalRef:
         apiVersion: v1
         kind: ConfigMap
@@ -51,7 +53,7 @@ spec:
 
     - id: ingressGenerator
       includeWhen:
-        - ${ingressConfig.status.state == "Ready" && certManagerBundle.status.state == "Ready"}
+        - ${ingressConfig.status.state == "Ready"}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
