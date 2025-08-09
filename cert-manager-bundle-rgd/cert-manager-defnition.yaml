@@ -278,7 +278,6 @@ spec:
             labels:
               app.kubernetes.io/instance:   cert-manager-bundle
               app.kubernetes.io/name:       ingress-request-configmap
-              app.kubernetes.io/component:  ingress-request-configmap
               app.kubernetes.io/part-of:    mikrolab
 
           data:

@@ -42,7 +42,7 @@ spec:
           #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
-    - id: ingressConfigMap
+    - id: ingressConfig
       externalRef:
         apiVersion: v1
         kind: ConfigMap
@@ -61,7 +61,7 @@ spec:
         metadata:
           name: ${schema.metadata.name}
           annotations:
-            cert-manager.io/cluster-issuer: ${ingressConfigMap.data.?clusterIssuer}
+            cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
           # finalizers:
           #   - resources-finalizer.argocd.argoproj.io
             
@@ -74,17 +74,17 @@ spec:
 
 
         spec: 
-          ingressClassName: ${certManagerBundle.spec.ingress.class}
-          # ingressClassName: ${ingressConfigMap.data.ingressClass}
+          # ingressClassName: ${certManagerBundle.spec.ingress.class}
+          ingressClassName: ${ingressConfig.data.ingressClass}
 
       
           tls:
           - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
             hosts:
-              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
+              - '${schema.spec.subdomain}.${ingressConfig.data.?domain}'
 
           rules:
-          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
+          - host: '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
             http:
               paths:
               - path: /
@@ -106,7 +106,7 @@ spec:
         metadata:
           name: ${schema.metadata.name}
           annotations:
-            cert-manager.io/cluster-issuer: 'duckdns-letsencrypt-${schema.spec.env}'
+            cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
           finalizers:
               # - resources-finalizer.argocd.argoproj.io
 
@@ -119,16 +119,16 @@ spec:
 
 
         spec: 
-          ingressClassName: ${certManagerBundle.spec.ingress.class}
+          ingressClassName: ${ingressConfig.data.?ingressClass}
 
       
           tls:
           - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
             hosts:
-              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
+              - '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
 
           rules:
-          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.duckdns.domain}'
+          - host: '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
             http:
               paths:
               - path: /
