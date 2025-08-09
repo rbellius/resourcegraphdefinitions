@@ -50,7 +50,7 @@ spec:
 
     status:
         
-        clusterIssuerCRDStatus: ${self.clusterIssuerCrd.status.state == "ACTIVE    "} # The status of the ClusterIssuer CRD that cert-manager uses to create ClusterIssuers.
+        clusterIssuerCRDStatus: ${clusterIssuerCrd.status.state == "ACTIVE"} # The status of the ClusterIssuer CRD that cert-manager uses to create ClusterIssuers.
     #     certManagerStatus: ${certmanager.status.state}
         # ingressConfigGenerator: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
     #   # Fields the controller will inject into instances status.
@@ -159,8 +159,8 @@ spec:
 
 
       - id: certManagerBuiltInIssuer
-        readyWhen:
-          - ${clusterIssuerCRDStatus.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
+        # readyWhen:
+        #   - ${clusterIssuerCRDStatus.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
         includeWhen:
           - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
         template:
