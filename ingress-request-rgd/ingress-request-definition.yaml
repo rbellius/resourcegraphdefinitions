@@ -24,7 +24,7 @@ spec:
         port: integer | default=80
 
     status:
-      ingressConfig: ${ingressConfig.status.conditions}
+      ingressConfigAvailable: ${ingressConfig.status.conditions}
 
 
   resources:
