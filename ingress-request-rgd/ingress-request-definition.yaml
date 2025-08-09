@@ -57,8 +57,10 @@ spec:
         kind: Ingress
         metadata:
           name: ${schema.metadata.name}
+          namespace: ${schema.metadata.namespace}
           annotations:
             cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
+            argocd.argoproj.io/instance: ${schema.metadata.name}-${schema.metadata.namespace}-ingress-request
           # finalizers:
           #   - resources-finalizer.argocd.argoproj.io
             
