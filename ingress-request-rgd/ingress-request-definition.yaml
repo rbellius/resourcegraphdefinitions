@@ -44,7 +44,7 @@ spec:
 
     - id: ingressBuiltInProvider
       includeWhen:
-        - ${certManagerBundle.spec.dns.providers.builtin.enabled}
+        - ${schema.spec.dns.providers.builtin.enabled}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
@@ -87,7 +87,7 @@ spec:
       ## Eliminate duplicate if CEL expressions allow the dynamic chaining for property names of providers. Otherwise we would need iterable loops or conditional gates within the spec
     - id: ingressDuckdns
       includeWhen:
-        - ${certManagerBundle.spec.dns.providers.duckdns.enabled}
+        - ${schema.spec.dns.providers.duckdns.enabled}
 
       template:
         apiVersion: networking.k8s.io/v1
