@@ -51,7 +51,7 @@ spec:
 
     - id: ingressGenerator
       includeWhen:
-        - ${ingressConfig.status.state == "Ready" && ingressConfig.status.data.?ingressClass != null && ingressConfig.status.data.?domain != null && ingressConfig.status.data.?clusterIssuer != null}
+        - ${ingressConfig.status.state == "Ready" && certManagerBundle.status.state == "Ready"}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
