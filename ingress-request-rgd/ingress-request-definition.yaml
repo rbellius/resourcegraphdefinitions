@@ -50,8 +50,8 @@ spec:
 
 
     - id: ingressGenerator
-      # includeWhen:
-      #   - ${schema.spec.providers.builtin}
+      includeWhen:
+        - ${ingressConfig.status.state == "Ready"}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
