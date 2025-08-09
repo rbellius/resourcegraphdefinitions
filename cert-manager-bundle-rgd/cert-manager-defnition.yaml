@@ -184,7 +184,7 @@ spec:
           - ${ingressConfig.status.state == "Ready"}
         template:
           apiVersion: v1
-          kind: Config
+          kind: ConfigMap
           metadata:
             name: ingress-request-configmap
             namespace: cert-manager
