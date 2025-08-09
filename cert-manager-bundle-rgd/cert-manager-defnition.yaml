@@ -40,45 +40,8 @@ spec:
               provider: string | default="duckdns" enum="duckdns,builtin" # Default provider to use if none is specified
               domain: string  # Default domain to use if none is specified
 
-
-
-
-        # dns2:
-        #   email:        string
-        #   domain:       string 
-        #   dynamic:      boolean | default=true
-        #   providers:
-        #     cloudflare: boolean | default=false
-        #     duckdns:    boolean | default=true
               
 
-
-  
-        # ingress:
-        #   class: string | default="traefik" enum="traefik"
-        #   tls:
-        #     enabled: boolean | default=false
-        #     dns:
-        #       domain: string
-        #       email: string
-        #       provider: string | default="duckdns" enum="duckdns,cloudflare"
-        #       dynamic: boolean | default=false
-
-        # # ingress:
-        # #   enabled: boolean | default=true
-        # #   domain: string | default="example.com"
-        # #   subdomain: string | default="app"
-        # #   tls: boolean | default=false
-
-        # ingress:
-        #   class: string |  default="traefik"
-
-        # dns:
-        #   enabled: boolean | default=false
-        #   token: string
-        #   duckdns: boolean | default=false
-        #   cloudflare: boolean | default=false
-        #   dynamic: boolean | default=false
 
     # status:
     #   # Fields the controller will inject into instances status.
@@ -214,12 +177,14 @@ spec:
 
 
 
-      - id: ingressConfigMap
+      - id: ingressConfigGenerator
         includeWhen:
           - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
+        readyWhen:
+          - ${ingressConfig.status.state == "Ready"}
         template:
           apiVersion: v1
-          kind: ConfigMap
+          kind: Config
           metadata:
             name: ingress-request-configmap
             namespace: cert-manager
