@@ -47,7 +47,7 @@ spec:
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: ingress-config-configmap
+          name: ingress-request-configmap
           namespace: cert-manager
 
 
