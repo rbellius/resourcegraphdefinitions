@@ -259,9 +259,9 @@ spec:
                 targetRevision: main
                 helm:
                   valuesObject:
-                    provider: ${schema.spec.dns.providers.builtin.provider}
-                    email: ${schema.spec.dns.providers.builtin.email}
-                    domain: ${schema.spec.dns.providers.builtin.domain}
+                    provider:   ${schema.spec.dns.providers.builtin.provider}
+                    email:      ${schema.spec.dns.providers.builtin.email}
+                    domain:     ${schema.spec.dns.providers.builtin.domain}
 
       - id: ingressConfigMap
         includeWhen:
@@ -284,9 +284,9 @@ spec:
             # This is the configmap that will be used by the ingress-request controller
             # to manage ingress requests.
             # It is used to configure the ingress class and the default domain.
-            ingressClass: ${schema.spec.ingress.class}
-            defaultDomain: ${schema.spec.dns.providers.duckdns.domain}
-            clusterIssuer: ${schema.dns.providers.default}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
+            ingressClass:   ${schema.spec.ingress.class}
+            domain:         ${schema.spec.dns.providers.default.domain}
+            clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
 
 
