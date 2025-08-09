@@ -46,7 +46,7 @@ spec:
 
     - id: ingressConfig
       readyWhen:
-        - ${ingressConfig.status.state == "Ready"}
+        - ${ingressConfig.status.?state == "Ready"}
       externalRef:
         apiVersion: v1
         kind: ConfigMap
