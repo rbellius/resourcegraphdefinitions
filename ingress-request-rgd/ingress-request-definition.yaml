@@ -22,7 +22,7 @@ spec:
 
       providers:
         builtin: boolean | default=false
-        duckdns: boolean | default=true
+        duckdns: boolean | default=false
 
       env: string | default="staging" enum="staging,production"
 

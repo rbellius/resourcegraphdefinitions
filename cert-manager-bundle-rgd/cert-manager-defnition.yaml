@@ -280,10 +280,15 @@ spec:
               app.kubernetes.io/name:       ingress-request-configmap
               app.kubernetes.io/component:  ingress-request-configmap
               app.kubernetes.io/part-of:    mikrolab
-              clustermanagerbundle.kro.run/ingress-class:   ${schema.spec.ingress.class} 
-              clustermanagerbundle.kro.run/cluster-issuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} 
-              clustermanagerbundle.kro.run/domain:          ${schema.spec.dns.providers.default.domain}
-        
+
+          data:
+            # This is the configmap that will be used by the ingress-request controller
+            # to manage ingress requests.
+            # It is used to configure the ingress class and the default domain.
+            ingressClass:   ${schema.spec.ingress.class}
+            domain:         ${schema.spec.dns.providers.default.domain}
+            clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
+
 
 
       - id: certManagerDuckDnsWebhook
