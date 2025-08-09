@@ -44,7 +44,7 @@ spec:
 
 
     status:
-        certManagerStatus: ${certmanager.status.?conditions}
+        certManagerStatus: ${certmanager.status.state}
         # ingressConfigGenerator: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
     #   # Fields the controller will inject into instances status.
     #   certManagerConditions: ${certmanager.status.conditions}
@@ -86,7 +86,7 @@ spec:
 
       - id: certmanager
         readyWhen:
-          - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
+          - ${certmanager.status.state == ""} # Ensure cert-manager is ready before deploying the issuer
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
