@@ -90,9 +90,9 @@ spec:
                 pathType: Prefix
                 backend:
                   service:
-                    name: ${schema.spec.serviceName}
+                    name: ${schema.spec.service.name}
                     port:
-                      number: ${schema.spec.servicePort}
+                      number: ${schema.spec.service.port}
 
     #   ## Eliminate duplicate if CEL expressions allow the dynamic chaining for property names of providers. Otherwise we would need iterable loops or conditional gates within the spec
     # - id: ingressDuckdns
