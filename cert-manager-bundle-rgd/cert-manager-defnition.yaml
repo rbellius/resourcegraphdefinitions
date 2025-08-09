@@ -143,7 +143,10 @@ spec:
                       - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
 
-      - id: clusterIsserCrd
+
+        # ${clustreIssuerCrd.status.conditions.exists(x, x.type == 'Established' && x.status == "True")}
+
+      - id: clusterIssuerCrd
         # readyWhen:
         #   - ${certmanager.status.?state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer  
         template:
@@ -153,117 +156,117 @@ spec:
             name: clusterissuers.cert-manager.io
 
 
-      # - id: certManagerBuiltInIssuer
-      #   # readyWhen:
-      #   #   - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
-      #   includeWhen:
-      #     - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
-      #   template:
-      #     apiVersion: cert-manager.io/v1
-      #     kind: ClusterIssuer
-
-      #     metadata:
-      #       name: ${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}
-      #       annotations:
-      #         # argocd.argoproj.io/hook: PostSync
-      #         # argocd.argoproj.io/sync-wave: "10"
-      #         argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
-      #         rbellius.com/cert-manager-condition: ${certmanager.status.?state}
-      #       finalizers:
-      #         - resources-finalizer.argocd.argoproj.io/foreground
-
-      #       labels:
-      #         app.kubernetes.io/instance: 'cert-manager'
-      #         app.kubernetes.io/component: '${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}'
-      #         app.kubernetes.io/name: cert-manager-${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}
-      #         app.kubernetes.io/part-of: cert-manager
-      #     spec:
-      #       acme:
-
-      #         # Email address used for ACME registration
-      #         email: ${schema.spec.dns.providers.builtin.email}
-
-      #         # Let's Encrypt Staging
-      #         server: https://acme-staging-v02.api.letsencrypt.org/directory
-
-      #         # Let's Encrypt Production
-      #         # server: https://acme-v02.api.letsencrypt.org/directory
-
-
-      #         privateKeySecretRef:
-      #           name: issuer-account-key
-
-      #         solvers:
-
-      #         # DNS01 challenge
-      #         - dns01:
-
-      #             # Cloudflare DNS01 challenge provider
-      #             # ${schema.spec.dns.providers.builtin.provider}:
-      #             cloudflare:
-
-      #               # Cloudflare acccount email
-      #               email: ${schema.spec.dns.providers.builtin.email}
-
-      #               # Cloudflare Orgin CA API Token
-      #               apiKeySecretRef:
-      #                 name: '${schema.spec.dns.providers.builtin.provider}-api-key-secret'
-      #                 key: '${schema.spec.dns.providers.builtin.provider}'
-      #           selector:
-      #             dnsZones:
-      #             - '${schema.spec.dns.providers.builtin.domain}'
-
-
-
-
-
-      - id: certManagerBuiltInProvider
+      - id: certManagerBuiltInIssuer
+        readyWhen:
+          - ${clustreIssuerCrd.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
         includeWhen:
-          - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
+          - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
         template:
-            apiVersion: argoproj.io/v1alpha1
-            kind: Application
-            metadata:
-              name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
-              namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: cert-manager-bundle
-                # argocd.argoproj.io/sync-wave: "-10" 
-                # argocd.argoproj.io/hook: "PreSync"             
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+
+          metadata:
+            name: ${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}
+            annotations:
+              # argocd.argoproj.io/hook: PostSync
+              # argocd.argoproj.io/sync-wave: "10"
+              argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
+              rbellius.com/cert-manager-condition: ${certmanager.status.?state}
+            finalizers:
+              - resources-finalizer.argocd.argoproj.io/foreground
+
+            labels:
+              app.kubernetes.io/instance: 'cert-manager'
+              app.kubernetes.io/component: '${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}'
+              app.kubernetes.io/name: cert-manager-${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}
+              app.kubernetes.io/part-of: cert-manager
+          spec:
+            acme:
+
+              # Email address used for ACME registration
+              email: ${schema.spec.dns.providers.builtin.email}
+
+              # Let's Encrypt Staging
+              server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+              # Let's Encrypt Production
+              # server: https://acme-v02.api.letsencrypt.org/directory
+
+
+              privateKeySecretRef:
+                name: issuer-account-key
+
+              solvers:
+
+              # DNS01 challenge
+              - dns01:
+
+                  # Cloudflare DNS01 challenge provider
+                  # ${schema.spec.dns.providers.builtin.provider}:
+                  cloudflare:
+
+                    # Cloudflare acccount email
+                    email: ${schema.spec.dns.providers.builtin.email}
+
+                    # Cloudflare Orgin CA API Token
+                    apiKeySecretRef:
+                      name: '${schema.spec.dns.providers.builtin.provider}-api-key-secret'
+                      key: '${schema.spec.dns.providers.builtin.provider}'
+                selector:
+                  dnsZones:
+                  - '${schema.spec.dns.providers.builtin.domain}'
+
+
+
+
+
+      # - id: certManagerBuiltInProvider
+      #   includeWhen:
+      #     - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
+      #   template:
+      #       apiVersion: argoproj.io/v1alpha1
+      #       kind: Application
+      #       metadata:
+      #         name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
+      #         namespace: argocd
+      #         annotations:
+      #           argocd.argoproj.io/instance: cert-manager-bundle
+      #           # argocd.argoproj.io/sync-wave: "-10" 
+      #           # argocd.argoproj.io/hook: "PreSync"             
       
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io
-              labels:
-                    app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
-                    app.kubernetes.io/instance:   'cert-manager-bundle'
-                    app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
-                    app.kubernetes.io/part-of:    'mikrolab'
-            spec:
-              project: default
+      #         finalizers:
+      #           - resources-finalizer.argocd.argoproj.io
+      #         labels:
+      #               app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
+      #               app.kubernetes.io/instance:   'cert-manager-bundle'
+      #               app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
+      #               app.kubernetes.io/part-of:    'mikrolab'
+      #       spec:
+      #         project: default
 
-              syncPolicy:
-                automated:
-                  selfHeal: true
-                  prune: true
-                  allowEmpty: true
+      #         syncPolicy:
+      #           automated:
+      #             selfHeal: true
+      #             prune: true
+      #             allowEmpty: true
               
-                syncOptions:
-                  - CreateNamespace=true
-                  # - ApplyOutOfSyncOnly=true
+      #           syncOptions:
+      #             - CreateNamespace=true
+      #             # - ApplyOutOfSyncOnly=true
 
-              destination:
-                server: https://kubernetes.default.svc
-                namespace: cert-manager
+      #         destination:
+      #           server: https://kubernetes.default.svc
+      #           namespace: cert-manager
 
-              source:
-                repoURL: git@github.com:rbellius/charts.git
-                path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
-                targetRevision: main
-                helm:
-                  valuesObject:
-                    provider:   ${schema.spec.dns.providers.builtin.provider}
-                    email:      ${schema.spec.dns.providers.builtin.email}
-                    domain:     ${schema.spec.dns.providers.builtin.domain}
+      #         source:
+      #           repoURL: git@github.com:rbellius/charts.git
+      #           path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
+      #           targetRevision: main
+      #           helm:
+      #             valuesObject:
+      #               provider:   ${schema.spec.dns.providers.builtin.provider}
+      #               email:      ${schema.spec.dns.providers.builtin.email}
+      #               domain:     ${schema.spec.dns.providers.builtin.domain}
 
 
 
