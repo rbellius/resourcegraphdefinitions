@@ -213,55 +213,57 @@ spec:
 
 
 
-      - id: certManagerBuiltInProvider
-        includeWhen:
-          - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
-        template:
-            apiVersion: argoproj.io/v1alpha1
-            kind: Application
-            metadata:
-              name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
-              namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: cert-manager-bundle
-                # argocd.argoproj.io/sync-wave: "-10" 
-                # argocd.argoproj.io/hook: "PreSync"             
+      # - id: certManagerBuiltInProvider
+      #   includeWhen:
+      #     - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
+      #   template:
+      #       apiVersion: argoproj.io/v1alpha1
+      #       kind: Application
+      #       metadata:
+      #         name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
+      #         namespace: argocd
+      #         annotations:
+      #           argocd.argoproj.io/instance: cert-manager-bundle
+      #           # argocd.argoproj.io/sync-wave: "-10" 
+      #           # argocd.argoproj.io/hook: "PreSync"             
       
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io
-              labels:
-                    app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
-                    app.kubernetes.io/instance:   'cert-manager-bundle'
-                    app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
-                    app.kubernetes.io/part-of:    'mikrolab'
-            spec:
-              project: default
+      #         finalizers:
+      #           - resources-finalizer.argocd.argoproj.io
+      #         labels:
+      #               app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
+      #               app.kubernetes.io/instance:   'cert-manager-bundle'
+      #               app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
+      #               app.kubernetes.io/part-of:    'mikrolab'
+      #       spec:
+      #         project: default
 
-              syncPolicy:
-                automated:
-                  selfHeal: true
-                  prune: true
-                  allowEmpty: true
+      #         syncPolicy:
+      #           automated:
+      #             selfHeal: true
+      #             prune: true
+      #             allowEmpty: true
               
-                syncOptions:
-                  - CreateNamespace=true
-                  # - ApplyOutOfSyncOnly=true
+      #           syncOptions:
+      #             - CreateNamespace=true
+      #             # - ApplyOutOfSyncOnly=true
 
-              destination:
-                server: https://kubernetes.default.svc
-                namespace: cert-manager
+      #         destination:
+      #           server: https://kubernetes.default.svc
+      #           namespace: cert-manager
 
-              source:
-                repoURL: git@github.com:rbellius/charts.git
-                path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
-                targetRevision: main
-                helm:
-                  valuesObject:
-                    provider: ${schema.spec.dns.providers.builtin.provider}
-                    email: ${schema.spec.dns.providers.builtin.email}
-                    domain: ${schema.spec.dns.providers.builtin.domain}
+      #         source:
+      #           repoURL: git@github.com:rbellius/charts.git
+      #           path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
+      #           targetRevision: main
+      #           helm:
+      #             valuesObject:
+      #               provider: ${schema.spec.dns.providers.builtin.provider}
+      #               email: ${schema.spec.dns.providers.builtin.email}
+      #               domain: ${schema.spec.dns.providers.builtin.domain}
   
       - id: certManagerDuckDnsWebhook
+        readyWhen:
+          - ${certManager.status.state == "available"}
         includeWhen:
           - ${schema.spec.dns.providers.duckdns.enabled} # Only include if the user wants to use DuckDNS
         # readyWhen:
