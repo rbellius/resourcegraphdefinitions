@@ -271,7 +271,7 @@ spec:
           kind: ConfigMap
           metadata:
             name: ingress-request-configmap
-            namespace: ${schema.metadata.namespace}
+            namespace: cert-manager
             annotations:
               argocd.argoproj.io/instance: cert-manager-bundle
               # argocd.argoproj.io/sync-wave: "0"
