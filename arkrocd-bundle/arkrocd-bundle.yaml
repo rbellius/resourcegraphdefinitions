@@ -68,7 +68,7 @@ spec:
 
       - id: argocdIngress
         template:
-            apiVersion: v1alpha1
+            apiVersion: kro.run/v1alpha1
             kind: IngressRequest
             metadata:
               name: argocd
