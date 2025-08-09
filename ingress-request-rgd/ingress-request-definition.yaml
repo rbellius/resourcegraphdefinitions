@@ -48,7 +48,7 @@ spec:
         kind: ConfigMap
         metadata:
           name: ingress-request-configmap
-          namespace: cert-manager
+          namespace: ${schema.metadata.namespace}
 
 
 
