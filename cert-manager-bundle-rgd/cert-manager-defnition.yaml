@@ -43,8 +43,8 @@ spec:
               
 
 
-    status:
-      ingressConfig: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
+    # status:
+    #   ingressConfig: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
     #   # Fields the controller will inject into instances status.
     #   certManagerConditions: ${certmanager.status.conditions}
 
