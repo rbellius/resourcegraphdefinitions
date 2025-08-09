@@ -70,6 +70,32 @@ spec:
       #       subdomain: argocd
       #       domain: ${schema.spec.domain}
 
+      - id: ingressConfigGenerator
+        includeWhen:
+          - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
+          # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
+        # readyWhen:
+        #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
+        template:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: ingress-request-configmap
+            namespace: cert-manager
+            annotations:
+              argocd.argoproj.io/instance: cert-manager-bundle
+              # argocd.argoproj.io/sync-wave: "0"
+            labels:
+              app.kubernetes.io/instance:   cert-manager-bundle
+              app.kubernetes.io/name:       ingress-request-configmap
+              app.kubernetes.io/part-of:    mikrolab
+
+          data:
+            # This is the configmap that will be used by the ingress-request controllerto manage ingress requests.
+            # It is used to configure the ingress class and the default domain.
+            ingressClass:   ${schema.spec.ingress.class}
+            domain:         ${schema.spec.dns.providers.default.domain}
+            clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
       - id: certManager
         template:
@@ -179,32 +205,6 @@ spec:
 
 
 
-      - id: ingressConfigGenerator
-        includeWhen:
-          - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
-          # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
-        # readyWhen:
-        #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
-        template:
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: ingress-request-configmap
-            namespace: cert-manager
-            annotations:
-              argocd.argoproj.io/instance: cert-manager-bundle
-              # argocd.argoproj.io/sync-wave: "0"
-            labels:
-              app.kubernetes.io/instance:   cert-manager-bundle
-              app.kubernetes.io/name:       ingress-request-configmap
-              app.kubernetes.io/part-of:    mikrolab
-
-          data:
-            # This is the configmap that will be used by the ingress-request controllerto manage ingress requests.
-            # It is used to configure the ingress class and the default domain.
-            ingressClass:   ${schema.spec.ingress.class}
-            domain:         ${schema.spec.dns.providers.default.domain}
-            clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
 
       - id: certManagerBuiltInProvider
