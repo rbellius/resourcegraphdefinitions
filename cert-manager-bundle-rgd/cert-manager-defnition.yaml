@@ -85,8 +85,8 @@ spec:
             clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
       - id: certmanager
-        readyWhen:
-          - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
+        # readyWhen:
+        #   - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -138,8 +138,8 @@ spec:
 
 
       - id: certManagerBuiltInIssuer
-        readyWhen:
-          - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
+        # readyWhen:
+        #   - ${certmanager.status.state == "ACTIVE"} # Ensure cert-manager is ready before deploying the issuer
         includeWhen:
           - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
         template:
