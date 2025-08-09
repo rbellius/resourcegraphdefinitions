@@ -1,0 +1,41 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: mikrolab
+  annotations:
+    argocd.argoproj.io/instance: mikrolab
+  labels:
+    app.kubernetes.io/name: mikrolab
+    app.kubernetes.io/instance: mikrolab
+    app.kubernetes.io/component: rgd
+    app.kubernetes.io/part-of: mikrolab
+    # app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
+
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: IngressRequest
+    spec:
+   
+      env: string | default="staging" enum="staging,production"
+      subdomain: string
+
+      service:
+        name: string
+        port: integer | default=80
+
+    
+
+
+  resources:
+    - id: certManagerBundle
+      externalRef:
+        apiVersion: kro.run/v1alpha1
+        kind: CertManangerBundle
+        metadata:
+          name: cert-manager-bundle
+          namespace: cert-manager
+          # annotations:
+          #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
+
+    
