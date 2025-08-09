@@ -259,10 +259,10 @@ spec:
 
 
       - id: certManagerDuckDnsWebhook
-        # includeWhen:
-        #   - ${schema.spec.dns.providers.duckdns.enabled} # Only include if the user wants to use DuckDNS
+        includeWhen:
+          - ${schema.spec.dns.providers.duckdns.enabled} # Only include if the user wants to use DuckDNS
         readyWhen:
-          - ${certManager.status.state == "Ready"} # Ensure cert-manager is ready before deploying the webhook
+          - ${certManagerDuckDnsWebhook.status.state == "Ready"} # Ensure cert-manager is ready before deploying the webhook
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
