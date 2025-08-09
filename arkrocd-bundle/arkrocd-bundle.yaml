@@ -83,8 +83,8 @@ spec:
               servicePort: 80
 
               providers:
-                duckdns: true
-                builtin: false
+                duckdns: ${schema.spec.provider == "duckdns"}
+                builtin: ${schema.spec.provider == "cloudflare"}
 
               env: ${schema.spec.env}
 
