@@ -42,13 +42,13 @@ spec:
           #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
-    # - id: ingressConfigMap
-    #   externalRef:
-    #     apiVersion: v1
-    #     kind: ConfigMap
-    #     metadata:
-    #       name: ingress-config-${schema.spec.dns.providers.builtin.provider}
-    #       namespace: cert-manager
+    - id: ingressConfigMap
+      externalRef:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ingress-config-${schema.spec.dns.providers.builtin.provider}
+          namespace: cert-manager
 
 
 
@@ -61,7 +61,7 @@ spec:
         metadata:
           name: ${schema.metadata.name}
           annotations:
-            cert-manager.io/cluster-issuer: '${certManagerBundle.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}'
+            cert-manager.io/cluster-issuer: '${ingressConfigMap.data.clusterIssuer}'
           # finalizers:
           #   - resources-finalizer.argocd.argoproj.io
             
@@ -74,16 +74,16 @@ spec:
 
 
         spec: 
-          ingressClassName: ${certManagerBundle.spec.ingress.class}
+          ingressClassName: ${ingressConfigMap.data.ingressClass}
 
       
           tls:
           - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
             hosts:
-              - '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
+              - '${schema.spec.subdomain}.${ingressConfigMap.data.domain}'
 
           rules:
-          - host: '${schema.spec.subdomain}.${certManagerBundle.spec.dns.providers.builtin.domain}'
+          - host: '${schema.spec.subdomain}.${ingressConfigMap.data.domain}'
             http:
               paths:
               - path: /
