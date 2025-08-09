@@ -151,7 +151,7 @@ spec:
             annotations:
               argocd.argoproj.io/sync-wave: "5"
               argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
-              rbellius.com/cert-manager-condition: ${certManager.status.?state}
+              rbellius.com/cert-manager-condition: ${certmanager.status.?state}
             finalizers:
               - resources-finalizer.argocd.argoproj.io
 
