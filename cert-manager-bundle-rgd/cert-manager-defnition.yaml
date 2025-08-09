@@ -44,7 +44,7 @@ spec:
 
 
     # status:
-        # certManager: ${certManager.status.conditions}
+        certManager: ${certmanager.status.?conditions}
         # ingressConfigGenerator: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
     #   # Fields the controller will inject into instances status.
     #   certManagerConditions: ${certmanager.status.conditions}
@@ -84,7 +84,7 @@ spec:
             domain:         ${schema.spec.dns.providers.default.domain}
             clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
-      - id: certManager
+      - id: certmanager
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
