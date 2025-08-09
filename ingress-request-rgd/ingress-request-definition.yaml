@@ -16,30 +16,27 @@ spec:
     kind: IngressRequest
     spec:
    
-      subdomain: string
-      serviceName: string
-      servicePort: integer | default=80
-
-      providers:
-        builtin: boolean | default=false
-        duckdns: boolean | default=false
-
       env: string | default="staging" enum="staging,production"
+      subdomain: string
 
-      certManagerBundle: string | default="cert-manager-bundle" enum="cert-manager-bundle"
+      service:
+        name: string
+        port: integer | default=80
+
+    
 
 
   resources:
 
-    - id: certManagerBundle
-      externalRef:
-        apiVersion: kro.run/v1alpha1
-        kind: CertManangerBundle
-        metadata:
-          name: cert-manager-bundle
-          namespace: cert-manager
-          # annotations:
-          #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
+    # - id: certManagerBundle
+    #   externalRef:
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: CertManangerBundle
+    #     metadata:
+    #       name: cert-manager-bundle
+    #       namespace: cert-manager
+    #       # annotations:
+    #       #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
     - id: ingressConfig
@@ -52,9 +49,9 @@ spec:
 
 
 
-    - id: ingressBuiltInProvider
-      includeWhen:
-        - ${schema.spec.providers.builtin && certManagerBundle.spec.dns.providers.builtin.enabled}
+    - id: ingressGenerator
+      # includeWhen:
+      #   - ${schema.spec.providers.builtin}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
@@ -95,46 +92,46 @@ spec:
                     port:
                       number: ${schema.spec.servicePort}
 
-      ## Eliminate duplicate if CEL expressions allow the dynamic chaining for property names of providers. Otherwise we would need iterable loops or conditional gates within the spec
-    - id: ingressDuckdns
-      includeWhen:
-        - ${schema.spec.providers.duckdns && certManagerBundle.spec.dns.providers.duckdns.enabled}
+    #   ## Eliminate duplicate if CEL expressions allow the dynamic chaining for property names of providers. Otherwise we would need iterable loops or conditional gates within the spec
+    # - id: ingressDuckdns
+    #   includeWhen:
+    #     - ${schema.spec.providers.duckdns}
 
-      template:
-        apiVersion: networking.k8s.io/v1
-        kind: Ingress
-        metadata:
-          name: ${schema.metadata.name}
-          annotations:
-            cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
-          finalizers:
-              # - resources-finalizer.argocd.argoproj.io
+    #   template:
+    #     apiVersion: networking.k8s.io/v1
+    #     kind: Ingress
+    #     metadata:
+    #       name: ${schema.metadata.name}
+    #       annotations:
+    #         cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
+    #       finalizers:
+    #           # - resources-finalizer.argocd.argoproj.io
 
-          labels:
-            app.kubernetes.io/instance: ${schema.metadata.name}
-            app.kubernetes.io/name: ingress
-            app.kubernetes.io/component: ingress
-            app.kubernetes.io/part-of: ${schema.metadata.namespace}
-            # app.kubernetes.io/managed-by: kro
+    #       labels:
+    #         app.kubernetes.io/instance: ${schema.metadata.name}
+    #         app.kubernetes.io/name: ingress
+    #         app.kubernetes.io/component: ingress
+    #         app.kubernetes.io/part-of: ${schema.metadata.namespace}
+    #         # app.kubernetes.io/managed-by: kro
 
 
-        spec: 
-          ingressClassName: ${ingressConfig.data.?ingressClass}
+    #     spec: 
+    #       ingressClassName: ${ingressConfig.data.?ingressClass}
 
       
-          tls:
-          - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
-            hosts:
-              - '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
+    #       tls:
+    #       - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
+    #         hosts:
+    #           - '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
 
-          rules:
-          - host: '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
-            http:
-              paths:
-              - path: /
-                pathType: Prefix
-                backend:
-                  service:
-                    name: ${schema.spec.serviceName}
-                    port:
-                      number: ${schema.spec.servicePort}
+    #       rules:
+    #       - host: '${schema.spec.subdomain}.${ingressConfig.data.?clusterIssuer}'
+    #         http:
+    #           paths:
+    #           - path: /
+    #             pathType: Prefix
+    #             backend:
+    #               service:
+    #                 name: ${schema.spec.serviceName}
+    #                 port:
+    #                   number: ${schema.spec.servicePort}
