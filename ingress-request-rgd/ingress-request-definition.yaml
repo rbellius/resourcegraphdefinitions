@@ -42,13 +42,13 @@ spec:
           #   cert-manager.io/cluster-issuer: '${schema.spec.dnsProvider}-letsencrypt-${schema.spec.env}'
 
 
-    # - id: ingressConfigMap
-    #   externalRef:
-    #     apiVersion: v1
-    #     kind: ConfigMap
-    #     metadata:
-    #       name: ingress-config-${schema.spec.dns.providers.builtin.provider}
-    #       namespace: cert-manager
+    - id: ingressConfigMap
+      externalRef:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ingress-config-configmap
+          namespace: cert-manager
 
 
 
