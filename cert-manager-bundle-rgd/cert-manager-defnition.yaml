@@ -181,7 +181,7 @@ spec:
         includeWhen:
           - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
         readyWhen:
-          - ${ingressConfigGenerator.status.?state == "Ready"}
+          - ${ingressConfigGenerator.status.?state}
         template:
           apiVersion: v1
           kind: ConfigMap
