@@ -50,7 +50,7 @@ spec:
 
     status:
         
-        clusterIssuerCRDStatus: ${clusterIssuerCrd.status.state == "ACTIVE"} # The status of the ClusterIssuer CRD that cert-manager uses to create ClusterIssuers.
+        clusterIssuerCRDStatus: ${self.clusterIssuerCrd.status.state == "ACTIVE    "} # The status of the ClusterIssuer CRD that cert-manager uses to create ClusterIssuers.
     #     certManagerStatus: ${certmanager.status.state}
         # ingressConfigGenerator: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
     #   # Fields the controller will inject into instances status.
