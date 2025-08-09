@@ -74,7 +74,8 @@ spec:
 
 
         spec: 
-          ingressClassName: ${certManagerBundle.spec.ingress.class}
+          # ingressClassName: ${certManagerBundle.spec.ingress.class}
+          ingressClassName: ${ingressConfigMap.data.ingressClass}
 
       
           tls:
