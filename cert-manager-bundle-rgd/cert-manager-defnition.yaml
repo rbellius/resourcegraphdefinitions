@@ -60,8 +60,8 @@ spec:
         includeWhen:
           - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
           # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
-        # readyWhen:
-        #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
+        readyWhen:
+          - ${status.certmanagerHealth == "Healthy"} 
         template:
           apiVersion: v1
           kind: ConfigMap
