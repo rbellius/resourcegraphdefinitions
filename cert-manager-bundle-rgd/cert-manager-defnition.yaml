@@ -45,8 +45,16 @@ spec:
               provider: string | default="duckdns" enum="duckdns,builtin" # Default provider to use if none is specified
               domain: string  # Default domain to use if none is specified
 
-    status:
-      certmanagerHealth: ${certmanager.status.health.status} # Surface ArgoCD Application health status
+              
+
+
+    # status:
+        
+    #     clusterIssuerCRDStatus: ${clusterIssuerCrd.status.state == "ACTIVE"} # The status of the ClusterIssuer CRD that cert-manager uses to create ClusterIssuers.
+    #     certManagerStatus: ${certmanager.status.state}
+        # ingressConfigGenerator: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
+    #   # Fields the controller will inject into instances status.
+    #   certManagerConditions: ${certmanager.status.conditions}
 
 #  validation:
 #     # Validating admission policies added to the new API type's CRD
@@ -60,8 +68,8 @@ spec:
         includeWhen:
           - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
           # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
-        readyWhen:
-          - ${status.certmanagerHealth == "Healthy"} 
+        # readyWhen:
+        #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
         template:
           apiVersion: v1
           kind: ConfigMap
@@ -87,9 +95,9 @@ spec:
             domain:         ${schema.spec.dns.providers.default.domain}
             clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
-      - id: certmanager
+      - id: certmanagerApplication
         readyWhen:
-          - ${status.certmanagerHealth == "Healthy"} # Use surfaced health status from ArgoCD Application
+          -
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -150,117 +158,117 @@ spec:
             name: clusterissuers.cert-manager.io
 
 
-      - id: certManagerBuiltInIssuer
-        includeWhen:
-          - ${certmanager.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
-        # includeWhen:
-          # - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
-        template:
-          apiVersion: cert-manager.io/v1
-          kind: ${clusterIsssuerCrd.kind}
-
-          metadata:
-            name: ${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}
-            annotations:
-              # argocd.argoproj.io/hook: PostSync
-              # argocd.argoproj.io/sync-wave: "10"
-              argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
-              rbellius.com/cert-manager-condition: ${certmanager.status.?state}
-            finalizers:
-              - resources-finalizer.argocd.argoproj.io/foreground
-
-            labels:
-              app.kubernetes.io/instance: 'cert-manager'
-              app.kubernetes.io/component: '${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}'
-              app.kubernetes.io/name: cert-manager-${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}
-              app.kubernetes.io/part-of: cert-manager
-          spec:
-            acme:
-
-              # Email address used for ACME registration
-              email: ${schema.spec.dns.providers.builtin.email}
-
-              # Let's Encrypt Staging
-              server: https://acme-staging-v02.api.letsencrypt.org/directory
-
-              # Let's Encrypt Production
-              # server: https://acme-v02.api.letsencrypt.org/directory
-
-
-              privateKeySecretRef:
-                name: issuer-account-key
-
-              solvers:
-
-              # DNS01 challenge
-              - dns01:
-
-                  # Cloudflare DNS01 challenge provider
-                  # ${schema.spec.dns.providers.builtin.provider}:
-                  cloudflare:
-
-                    # Cloudflare acccount email
-                    email: ${schema.spec.dns.providers.builtin.email}
-
-                    # Cloudflare Orgin CA API Token
-                    apiKeySecretRef:
-                      name: '${schema.spec.dns.providers.builtin.provider}-api-key-secret'
-                      key: '${schema.spec.dns.providers.builtin.provider}'
-                selector:
-                  dnsZones:
-                  - '${schema.spec.dns.providers.builtin.domain}'
-
-
-
-
-
-      # - id: certManagerBuiltInProvider
+      # - id: certManagerBuiltInIssuer
       #   includeWhen:
-      #     - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
+      #     - ${certmanager.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
+      #   # includeWhen:
+      #     # - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
       #   template:
-      #       apiVersion: argoproj.io/v1alpha1
-      #       kind: Application
-      #       metadata:
-      #         name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
-      #         namespace: argocd
-      #         annotations:
-      #           argocd.argoproj.io/instance: cert-manager-bundle
-      #           # argocd.argoproj.io/sync-wave: "-10" 
-      #           # argocd.argoproj.io/hook: "PreSync"             
+      #     apiVersion: cert-manager.io/v1
+      #     kind: ${clusterIsssuerCrd.kind}
+
+      #     metadata:
+      #       name: ${schema.spec.dns.providers.builtin.provider}-letsencrypt-${schema.spec.env}
+      #       annotations:
+      #         # argocd.argoproj.io/hook: PostSync
+      #         # argocd.argoproj.io/sync-wave: "10"
+      #         argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
+      #         rbellius.com/cert-manager-condition: ${certmanager.status.?state}
+      #       finalizers:
+      #         - resources-finalizer.argocd.argoproj.io/foreground
+
+      #       labels:
+      #         app.kubernetes.io/instance: 'cert-manager'
+      #         app.kubernetes.io/component: '${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}'
+      #         app.kubernetes.io/name: cert-manager-${schema.spec.dns.providers.builtin.provider}-issuer-${schema.spec.env}
+      #         app.kubernetes.io/part-of: cert-manager
+      #     spec:
+      #       acme:
+
+      #         # Email address used for ACME registration
+      #         email: ${schema.spec.dns.providers.builtin.email}
+
+      #         # Let's Encrypt Staging
+      #         server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+      #         # Let's Encrypt Production
+      #         # server: https://acme-v02.api.letsencrypt.org/directory
+
+
+      #         privateKeySecretRef:
+      #           name: issuer-account-key
+
+      #         solvers:
+
+      #         # DNS01 challenge
+      #         - dns01:
+
+      #             # Cloudflare DNS01 challenge provider
+      #             # ${schema.spec.dns.providers.builtin.provider}:
+      #             cloudflare:
+
+      #               # Cloudflare acccount email
+      #               email: ${schema.spec.dns.providers.builtin.email}
+
+      #               # Cloudflare Orgin CA API Token
+      #               apiKeySecretRef:
+      #                 name: '${schema.spec.dns.providers.builtin.provider}-api-key-secret'
+      #                 key: '${schema.spec.dns.providers.builtin.provider}'
+      #           selector:
+      #             dnsZones:
+      #             - '${schema.spec.dns.providers.builtin.domain}'
+
+
+
+
+
+      - id: certManagerBuiltInProvider
+        includeWhen:
+          - ${schema.spec.dns.providers.builtin.enabled} # Only cloudflare is supported for now
+        template:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Application
+            metadata:
+              name: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
+              namespace: argocd
+              annotations:
+                argocd.argoproj.io/instance: cert-manager-bundle
+                # argocd.argoproj.io/sync-wave: "-10" 
+                # argocd.argoproj.io/hook: "PreSync"             
       
-      #         finalizers:
-      #           - resources-finalizer.argocd.argoproj.io
-      #         labels:
-      #               app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
-      #               app.kubernetes.io/instance:   'cert-manager-bundle'
-      #               app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
-      #               app.kubernetes.io/part-of:    'mikrolab'
-      #       spec:
-      #         project: default
+              finalizers:
+                - resources-finalizer.argocd.argoproj.io
+              labels:
+                    app.kubernetes.io/name:       'cert-manager-${schema.spec.dns.providers.builtin.provider}-application'
+                    app.kubernetes.io/instance:   'cert-manager-bundle'
+                    app.kubernetes.io/component:  'cert-manager-${schema.spec.dns.providers.builtin.provider}-webhook'
+                    app.kubernetes.io/part-of:    'mikrolab'
+            spec:
+              project: default
 
-      #         syncPolicy:
-      #           automated:
-      #             selfHeal: true
-      #             prune: true
-      #             allowEmpty: true
+              syncPolicy:
+                automated:
+                  selfHeal: true
+                  prune: true
+                  allowEmpty: true
               
-      #           syncOptions:
-      #             - CreateNamespace=true
-      #             # - ApplyOutOfSyncOnly=true
+                syncOptions:
+                  - CreateNamespace=true
+                  # - ApplyOutOfSyncOnly=true
 
-      #         destination:
-      #           server: https://kubernetes.default.svc
-      #           namespace: cert-manager
+              destination:
+                server: https://kubernetes.default.svc
+                namespace: cert-manager
 
-      #         source:
-      #           repoURL: git@github.com:rbellius/charts.git
-      #           path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
-      #           targetRevision: main
-      #           helm:
-      #             valuesObject:
-      #               provider:   ${schema.spec.dns.providers.builtin.provider}
-      #               email:      ${schema.spec.dns.providers.builtin.email}
-      #               domain:     ${schema.spec.dns.providers.builtin.domain}
+              source:
+                repoURL: git@github.com:rbellius/charts.git
+                path: 'cert-manager-${schema.spec.dns.providers.builtin.provider}'
+                targetRevision: main
+                helm:
+                  valuesObject:
+                    provider:   ${schema.spec.dns.providers.builtin.provider}
+                    email:      ${schema.spec.dns.providers.builtin.email}
+                    domain:     ${schema.spec.dns.providers.builtin.domain}
 
 
 
@@ -422,14 +430,6 @@ spec:
 
       #       destination:
       #         server: https://kubernetes.default.svc
-      #         namespace: cert-manager
-
-      #       source:
-      #         repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
-      #         path: ingress-request-rgd
-      #         targetRevision: main
-      #         # helm:
-              #   valuesObject:
       #         namespace: cert-manager
 
       #       source:
