@@ -160,7 +160,7 @@ spec:
 
       - id: certManagerBuiltInIssuer
         readyWhen:
-          - ${clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
+          - ${certmanager.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
         # includeWhen:
           # - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
         template:
