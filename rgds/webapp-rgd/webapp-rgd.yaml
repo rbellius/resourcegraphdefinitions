@@ -88,6 +88,24 @@ spec:
               port: ${schema.spec.servicePort}
               targetPort: ${deployment.spec.template.spec.containers[0].ports[0].containerPort}
 
+    - id: IngressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: ${schema.metadata.name}-ingress
+            namespace: ${schema.metadata.namespace}
+            annotations:
+              argocd.argoproj.io/instance: ${schema.metadata.name}        
+
+          spec:
+
+            env: ${schema.spec.env}
+            subdomain: ${schema.spec.ingress.subdomain}
+            service:
+              name: ${service.metadata.name} # Use the service name
+
+
     # - id: ingress
     #   # includeWhen:
     #   #   - ${schema.spec.ingress.enabled} # Only include if the user wants to create an Ingress
