@@ -17,6 +17,7 @@ spec:
       containerPort: integer | default=80
 
       servicePort: integer | default=80
+      
 
 
       ingress:
@@ -26,6 +27,7 @@ spec:
         subdomain: string | default="app"
         env: string | default="staging"
 
+      env: string | default="staging" enum="staging,production"
       networkStack: string | default="main-network-stack"
 
 
