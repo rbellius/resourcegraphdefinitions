@@ -1,0 +1,180 @@
+
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: webapp-definition
+  namespace: webapp
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: WebApplication
+    spec:
+
+      # Spec fields that users can provide.
+      name: string
+
+      containerImage: string | default="nginx"
+      containerPort: integer | default=80
+
+      servicePort: integer | default=80
+
+
+      ingress:
+        enabled: boolean | default=false
+        class: string | default="traefik"
+        domain: string | default="example.com"
+        subdomain: string | default="app"
+        env: string | default="staging"
+
+      networkStack: string | default="main-network-stack"
+
+
+    # status:
+    #   # Fields the controller will inject into instances status.
+    #   deploymentConditions: ${deployment.status.conditions}
+    #   availableReplicas: ${deployment.status.availableReplicas}
+
+  # Define the resources this API will manage.
+  resources:
+    - id: deployment
+      template:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ${schema.metadata.name} # Use the name provided by user
+          namespace: ${schema.metadata.namespace} # Use the namespace provided by user
+
+          labels:
+              app.kubernetes.io/instance: webapp-${schema.metadata.name}-deployment
+              app.kubernetes.io/name: ${schema.metadata.name}
+              app.kubernetes.io/component: deployment
+              app.kubernetes.io/part-of: ${schema.metadata.namespace}
+              app.kubernetes.io/managed-by: kro
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: ${schema.metadata.name} # Use the name provided by user
+          template:
+            metadata:
+              labels:
+                app: ${schema.metadata.name}
+            spec:
+              containers:
+                - name: ${schema.metadata.name}
+                  image: ${schema.spec.containerImage} # Use the image provided by user
+                  ports:
+                    - containerPort: ${schema.spec.containerPort} # Use the port provided by user
+
+    - id: service
+      template:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: ${schema.metadata.name}-service
+          namespace: ${schema.metadata.namespace}
+
+          labels:
+              app.kubernetes.io/instance: webapp-${schema.metadata.name}-service
+              app.kubernetes.io/name: ${schema.metadata.name}
+              app.kubernetes.io/component: service
+              app.kubernetes.io/part-of: ${schema.metadata.namespace}
+              app.kubernetes.io/managed-by: kro
+
+        spec:
+          selector: ${deployment.spec.selector.matchLabels} # Use the deployment selector
+          ports:
+            - protocol: TCP
+              port: ${schema.spec.servicePort}
+              targetPort: ${deployment.spec.template.spec.containers[0].ports[0].containerPort}
+
+    # - id: ingress
+    #   # includeWhen:
+    #   #   - ${schema.spec.ingress.enabled} # Only include if the user wants to create an Ingress
+    #   template:
+    #     apiVersion: networking.k8s.io/v1
+    #     kind: Ingress
+    #     metadata:
+    #       name: ${schema.metadata.name}-ingress
+    #       namespace: ${schema.metadata.namespace}
+    #       annotations:
+    #         cert-manager.io/cluster-issuer: cloudflare-letsencrypt-${schema.spec.ingress.env}
+    #       labels:
+    #           app.kubernetes.io/component: ingress
+    #           app.kubernetes.io/instance:  webapp-${schema.metadata.name}-service
+    #           app.kubernetes.io/name: ${schema.metadata.name}
+    #           app.kubernetes.io/part-of: ${schema.metadata.namespace}
+    #           app.kubernetes.io/managed-by: kro
+
+    #     spec: 
+    #       ingressClassName: ${schema.spec.ingress.class}
+
+    #       tls:
+    #       - secretName: cert-staging-tls
+    #         hosts:
+    #           - '${schema.spec.ingress.subdomain}.${schema.spec.ingress.domain}'
+
+    #       rules:
+    #       - host: '${schema.spec.ingress.subdomain}.${schema.spec.ingress.domain}'
+    #         http:
+    #           paths:
+    #           - path: /
+    #             pathType: Prefix
+    #             backend:
+    #               service:
+    #                 name:  ${service.metadata.name} # Use the service name
+    #                 port:
+    #                   number: ${service.spec.ports[0].port} # Use the service port
+
+
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: '{{ .Values.name }}'
+#   namespace: '{{ .Values.namespace | default .Values.name }}'
+#   annotations:
+#     cert-manager.io/cluster-issuer: cert-manager-webhook-duckdns-{{ .Values.env }}
+#     # cert-manager.io/cluster-issuer: acme-issuer-{{ .Values.env }}
+#     # external-dns.alpha.kubernetes.io/hostname: '{{ .Values.subdomain | default .Values.name }}.{{ .Values.domain }}'
+#     # external-dns.alpha.kubernetes.io/target: 192.168.12.184
+
+# spec: 
+#   ingressClassName: traefik
+
+#   tls:
+#   # - secretName: cert-{{ .Values.env }}
+#   - secretName: cert-manager-webhook-duckdns
+#     hosts:
+#       - '*.{{ .Values.domain }}'
+
+#   rules:
+#   - host: '{{ .Values.subdomain | default .Values.name }}.{{ .Values.domain }}'
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: {{ .Values.name }}
+#             port:
+#              number: 80
+
+
+      # # Array type
+      # ports: "[]integer"
+
+      # # Map type
+      # env: "map[string]mytype"
+
+    # Custom Types
+    # types:
+    #   myType:
+    #     value1: string | required=true
+    #     value2: integer | default=42
+
+    # status:
+    #   # Status fields with auto-inferred types
+    #   availableReplicas: ${deployment.status.availableReplicas}
+    #   serviceEndpoint: ${service.status.loadBalancer.ingress[0].hostname}
+
