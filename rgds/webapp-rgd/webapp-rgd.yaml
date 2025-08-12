@@ -88,7 +88,7 @@ spec:
               port: ${schema.spec.servicePort}
               targetPort: ${deployment.spec.template.spec.containers[0].ports[0].containerPort}
 
-    - id: IngressRequest
+    - id: ingressRequest
       template:
           apiVersion: kro.run/v1alpha1
           kind: IngressRequest
