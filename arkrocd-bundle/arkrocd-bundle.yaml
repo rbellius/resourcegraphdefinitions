@@ -13,6 +13,7 @@ spec:
     kind: ArkroCDBundle
     spec:
 
+      env: string | default="staging" enum="staging,production"
 
   resources:
       - id: argocdManagedKro
