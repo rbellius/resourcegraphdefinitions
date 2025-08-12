@@ -30,6 +30,20 @@ spec:
     
 
   resources:
+
+    - id: certManagerNamespace
+      template:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: cert-manager
+          labels:
+            app.kubernetes.io/name: cert-manager
+            app.kubernetes.io/instance: cert-manager
+            app.kubernetes.io/component: cert-manager
+            app.kubernetes.io/part-of: cert-manager
+            app.kubernetes.io/managed-by: argocd
+            
     - id: certMangerBundle
       includeWhen:
         - ${schema.spec.certmanager.enabled}
