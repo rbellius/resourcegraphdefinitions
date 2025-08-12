@@ -62,7 +62,7 @@ spec:
               #   domain: cloudbreaker.me
               builtin:
                 enabled: ${schema.spec.certmanager.provider == "cloudflare"}
-                provider: ${schema.spec.certmanager.provider}
+                provider: cloudflare
                 email: ${schema.spec.certmanager.email}
                 domain: ${schema.spec.certmanager.domain}
               default:
