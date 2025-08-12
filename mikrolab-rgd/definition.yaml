@@ -81,8 +81,3 @@ spec:
           namespace: argocd
           annotations:
             argocd.argoproj.io/instance: arkrocd-bundle
-        spec:
-
-          env: staging
-          provider: duckdns
-          domain: mikrolab.duckdns.org

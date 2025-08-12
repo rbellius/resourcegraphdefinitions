@@ -13,10 +13,6 @@ spec:
     kind: ArkroCDBundle
     spec:
 
-      env: string | default="staging" enum="staging,production"
-      provider: string | default="cloudflare" enum="cloudflare,duckdns"
-      domain: string | default="example.com"
-
 
   resources:
       - id: argocdManagedKro
@@ -67,23 +63,6 @@ spec:
                       keep: false
     
 
-      - id: argocdIngress
-        template:
-            apiVersion: kro.run/v1alpha1
-            kind: IngressRequest
-            metadata:
-              name: argocd
-              namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: argocd-ingress          
-
-            spec:
-
-              env: ${schema.spec.env}
-              subdomain: argocdtest
-              service:
-                name: argocd-server
-
 
 
       - id: argocdManagedArgocd
@@ -130,8 +109,8 @@ spec:
                 targetRevision: 8.0.0
                 helm:
                   valuesObject:
-                      global:
-                        domain: ${schema.spec.domain}
+                      # global:
+                      #   domain: ${schema.spec.domain}
 
                       crds:
                         create: true
@@ -140,17 +119,17 @@ spec:
                       dex:
                         enabled: false
 
-                      server:
-                        ingress:
-                          tls: true
-                          enabled: true
-                          annotations:
-                            cert-manager.io/cluster-issuer: ${schema.spec.provider}-letsencrypt-${schema.spec.env}
 
                       configs:
                         params:
                           server.insecure: true
 
+                      # server:
+                      #   ingress:
+                      #     tls: true
+                      #     enabled: true
+                      #     annotations:
+                      #       cert-manager.io/cluster-issuer: ${schema.spec.provider}-letsencrypt-${schema.spec.env}
                         cm:
                           timeout.reconciliation: 15s
                           # application.instanceLabelKey: argocd.argoproj.io/instance
@@ -299,3 +278,19 @@ spec:
                               return hs
 
 
+      - id: argocdIngressRequest
+        template:
+            apiVersion: kro.run/v1alpha1
+            kind: IngressRequest
+            metadata:
+              name: argocd
+              namespace: argocd
+              annotations:
+                argocd.argoproj.io/instance: argocd-ingress          
+
+            spec:
+
+              env: ${schema.spec.env}
+              subdomain: argocdtest
+              service:
+                name: argocd-server
