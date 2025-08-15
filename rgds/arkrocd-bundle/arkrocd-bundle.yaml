@@ -94,7 +94,7 @@ spec:
                 automated:
                   selfHeal: true
                   prune: true
-                  # allowEmpty:     
+                  # allowEmpty: true
               
                 syncOptions:
                   - CreateNamespace=true
@@ -292,6 +292,6 @@ spec:
             spec:
 
               env: ${schema.spec.env}
-              subdomain: argocd
+              subdomain: argocdtest
               service:
                 name: argocd-server
