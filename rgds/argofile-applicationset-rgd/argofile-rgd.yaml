@@ -1,7 +1,7 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: argofile-applicationset-rgd
+  name: argofile-rgd
   labels:
     app.kubernetes.io/name: argofile-applicationset
     app.kubernetes.io/instance: argofile-applicationset
