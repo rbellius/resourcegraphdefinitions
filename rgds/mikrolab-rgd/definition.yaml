@@ -34,6 +34,8 @@ spec:
     - id: certManagerArgofile
       readyWhen:
         - ${certManagerArgofile.status.state == "Ready"}
+        # - ${certManagerArgofile.status.sync.status == "Synced"}
+        # - ${certManagerArgofile.status.health.status == "Healthy"}
       template:
         apiVersion: kro.run/v1alpha1
         kind: Argofile
