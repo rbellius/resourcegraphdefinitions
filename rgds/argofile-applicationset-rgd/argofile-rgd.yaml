@@ -48,7 +48,7 @@ spec:
           path: string | default=""
           chart: string | default=""
           values: string | default=""
-          # parameters: '[string]string[str]string'
+          # parameters: '[]Parameter'
 
           # To match multiple patterns, wrap the patterns in {} and separate them with commas. For example: '{*.yml,*.yaml}'
           directory:
@@ -96,7 +96,7 @@ spec:
 
             syncPolicy:
               applicationsSync: '${ schema.spec.syncPolicy.applicationsSync }'
-              # preserveResourcesOnDelete: ${ schema.spec.syncPolicy.preserveResourcesOnDelete }
+              # preserveResourcesOnDelete: ${ schema.spec.syncPolicy.preserveResourcesOnDelete } ? why fail you?
 
             template:
      
@@ -111,7 +111,8 @@ spec:
                 - resources-finalizer.argocd.argoproj.io/foreground
                 
                 labels:
-                  # app.kubernetes.io/part-of:    mikrolab
+                  # app.kubernetes.io/part-of:  
+
               spec:
 
                 project:                        '{{ .project }}'
@@ -131,8 +132,8 @@ spec:
                   namespace:                    '{{ .destination.namespace | default .name }}'
 
                 source:
-                    repoURL:                    '{{ .source.repoURL }}'
-                    targetRevision:             '{{ .source.targetRevision }}'
+                  repoURL:                    '{{ .source.repoURL }}'
+                  targetRevision:             '{{ .source.targetRevision }}'
 
 
             templatePatch: | 

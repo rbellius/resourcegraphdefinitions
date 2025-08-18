@@ -31,6 +31,48 @@ spec:
 
   resources:
 
+    - id: certManagerArgofile
+      template:
+        apiVersion: kro.run/v1alpha1
+        kind: Argofile
+        metadata:
+          name: platform-argofile
+          namespace: platform
+        spec:
+          applications:
+            - name: cert-manager-bundle-loader
+              enabled: true  
+              hook: PreSync
+              destination:
+                namespace: cert-manager
+              source:
+                repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+                targetRevision: main
+                path: rgds/cert-manager-bundle-rgd
+
+    # - id: SomeChartArgofile
+    #   template:
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: Argofile
+    #     metadata:
+    #       name: chart-name-argofile
+    #     spec:
+    #       applications:
+    #         - name: chart-name
+    #           enabled: true  
+    #           hook: PreSync
+    #           syncWave: 0
+    #           destination:
+    #             namespace: your-namespace
+    #           source:
+    #             repoURL: git@github.com:user/repo.git
+    #             targetRevision: main
+    #             path: path/to/yaml # Use chart: for actual helm charts
+    #           values: | 
+    #             foo:
+    #               bar: true
+
+
     - id: certManagerNamespace
       template:
         apiVersion: v1
