@@ -33,7 +33,7 @@ spec:
 
     - id: certManagerArgofile
       readyWhen:
-        - ${certManagerArgofile.status.state == "Ready"}
+        - ${certManagerArgofile.applicationsReady == "true"}
         # - ${certManagerArgofile.status.sync.status == "Synced"}
         # - ${certManagerArgofile.status.health.status == "Healthy"}
       template:
