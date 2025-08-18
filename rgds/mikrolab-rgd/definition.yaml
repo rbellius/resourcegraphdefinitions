@@ -32,6 +32,8 @@ spec:
   resources:
 
     - id: certManagerArgofile
+      readyWhen:
+        - ${certManagerArgofile.status.state == "Ready"}
       template:
         apiVersion: kro.run/v1alpha1
         kind: Argofile
