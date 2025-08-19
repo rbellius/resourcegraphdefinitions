@@ -56,13 +56,13 @@ spec:
             exclude: string | required=false
             include: string | required=false
       
-    status:
+    # status:
       # (status.conditions[?type == 'synced']):
       #   - status: 'True'
 
     #   ${self.status.conditions.exists(c, c.type == "Ready" && c.status == "True")}  
       # applicationsSynced: ${argocdApplicationSet.status.conditions.exists(app, app.type == "Synced" && app.status == "True")}
-      applicationsHealthy: ${argocdApplicationSetstatus.resources.all(app, app.health.status == "Healthy")}
+      # applicationsHealthy: ${argocdApplicationSetstatus.resources.all(app, app.health.status == "Healthy")}
       # applicationsReady: ${argocdApplicationSetstatus.resources.all(app, app.status == "Synced" && app.health.status == "Healthy")}
     spec:
     
