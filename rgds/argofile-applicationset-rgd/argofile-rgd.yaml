@@ -59,8 +59,8 @@ spec:
     status:
     #   ${self.status.conditions.exists(c, c.type == "Ready" && c.status == "True")}  
       applicationsSynced: ${status.resources.all(app, app.status == "Synced")}
-      # applicationsHealthy: ${argocdApplicationSet.status.resources.all(app, app.health.status == "Healthy")}
-      # applicationsReady: ${argocdApplicationSet.status.resources.all(app, app.status == "Synced" && app.health.status == "Healthy")}
+      applicationsHealthy: ${status.resources.all(app, app.health.status == "Healthy")}
+      applicationsReady: ${status.resources.all(app, app.status == "Synced" && app.health.status =="Healthy")}
     spec:
     
       applications: '[]Application | required=true'
@@ -74,8 +74,6 @@ spec:
 
   resources:
       - id: argocdApplicationSet
-        # readyWhen:
-        #   - ${argocdApplicationSet.status.resources.all(app, app.status == "Synced")}
         template:
           apiVersion: argoproj.io/v1alpha1
           kind: ApplicationSet
