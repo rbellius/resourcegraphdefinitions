@@ -56,7 +56,7 @@ spec:
             exclude: string | required=false
             include: string | required=false
       
-    status:
+    # status:
     #   ${self.status.conditions.exists(c, c.type == "Ready" && c.status == "True")}  
       # applicationsSynced: ${argocdApplicationSet.status.resources.all(app, app.status == "Synced")}
       # applicationsHealthy: ${argocdApplicationSet.status.resources.all(app, app.health.status == "Healthy")}
