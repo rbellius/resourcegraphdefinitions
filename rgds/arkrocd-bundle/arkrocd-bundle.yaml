@@ -295,7 +295,7 @@ spec:
       #         subdomain: argocdtest
       #         service:
       #           name: argocd-server
----
+# ---
 
     # - id: arkrocdBundle
     #   # dependsOn: 
