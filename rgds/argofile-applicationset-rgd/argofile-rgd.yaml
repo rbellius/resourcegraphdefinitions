@@ -58,7 +58,7 @@ spec:
       
     # status:
     #   ${self.status.conditions.exists(c, c.type == "Ready" && c.status == "True")}  
-      # applicationsSynced: ${argocdApplicationSet.status.resources[0]}
+      applicationsSynced: ${argocdApplicationSet.conditions.filter(app, app.type == "Synced" && app.status == "True")}
       # applicationsHealthy: ${status.resources.all(app, app.health.status == "Healthy")}
       # applicationsReady: ${status.resources.all(app, app.status == "Synced" && app.health.status == "Healthy")}
     spec:
