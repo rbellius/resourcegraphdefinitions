@@ -32,8 +32,8 @@ spec:
   resources:
 
     - id: certManagerArgofile
-      readyWhen:
-        - ${certManagerArgofile.applicationsReady == "true"}
+      # readyWhen:
+        # - ${certManagerArgofile.applicationsReady == "true"}
         # - ${certManagerArgofile.status.sync.status == "Synced"}
         # - ${certManagerArgofile.status.health.status == "Healthy"}
       template:
