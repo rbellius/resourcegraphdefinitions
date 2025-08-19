@@ -295,3 +295,16 @@ spec:
       #         subdomain: argocdtest
       #         service:
       #           name: argocd-server
+---
+
+    # - id: arkrocdBundle
+    #   # dependsOn: 
+    #   #     - certMangerBundle
+    #   template:
+apiVersion: kro.run/v1alpha1
+kind: ArkroCDBundle
+metadata:
+  name: staging-arkrocd-bundle
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/instance: arkrocd-bundle

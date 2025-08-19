@@ -30,17 +30,17 @@ spec:
     
 
   resources:
-    - id: arkrocdBundle
-      # dependsOn: 
-      #     - certMangerBundle
-      template:
-        apiVersion: kro.run/v1alpha1
-        kind: ArkroCDBundle
-        metadata:
-          name: staging-arkrocd-bundle
-          namespace: argocd
-          annotations:
-            argocd.argoproj.io/instance: arkrocd-bundle
+    # - id: arkrocdBundle
+    #   # dependsOn: 
+    #   #     - certMangerBundle
+    #   template:
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: ArkroCDBundle
+    #     metadata:
+    #       name: staging-arkrocd-bundle
+    #       namespace: argocd
+    #       annotations:
+    #         argocd.argoproj.io/instance: arkrocd-bundle
 
 
     - id: certManagerBundleArgofile
