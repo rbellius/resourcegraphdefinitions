@@ -279,19 +279,19 @@ spec:
                               return hs
 
 
-      - id: argocdIngressRequest
-        template:
-            apiVersion: kro.run/v1alpha1
-            kind: IngressRequest
-            metadata:
-              name: argocd
-              namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: argocd-ingress          
+      # - id: argocdIngressRequest
+      #   template:
+      #       apiVersion: kro.run/v1alpha1
+      #       kind: IngressRequest
+      #       metadata:
+      #         name: argocd
+      #         namespace: argocd
+      #         annotations:
+      #           argocd.argoproj.io/instance: argocd-ingress          
 
-            spec:
+      #       spec:
 
-              env: ${schema.spec.env}
-              subdomain: argocdtest
-              service:
-                name: argocd-server
+      #         env: ${schema.spec.env}
+      #         subdomain: argocdtest
+      #         service:
+      #           name: argocd-server
