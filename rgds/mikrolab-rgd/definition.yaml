@@ -98,7 +98,7 @@ spec:
         kind: CertManangerBundle
         metadata:
           name: cert-manager-bundle
-          namespace: ${certManagerArgofile.spec.applications[0].namespace}
+          namespace: ${certManagerBundleArgofile.spec.applications[0].namespace}
           annotations:
             argocd.argoproj.io/instance: cert-manager-bundle
         spec:
