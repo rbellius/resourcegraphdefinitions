@@ -31,7 +31,28 @@ spec:
 
   resources:
 
-
+    - id: certManagerBundleArgofile
+      readyWhen:
+        - ${certManagerArgofile.applicationsReady == "true"}
+        # - ${certManagerArgofile.status.sync.status == "Synced"}
+        # - ${certManagerArgofile.status.health.status == "Healthy"}
+      template:
+        apiVersion: kro.run/v1alpha1
+        kind: Argofile
+        metadata:
+          name: platform-argofile
+          namespace: platform
+        spec:
+          applications:
+            - name: cert-manager-bundle-app
+              enabled: true  
+              hook: PreSync
+              destination:
+                namespace: cert-manager
+              source:
+                repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+                targetRevision: main
+                path: rgds/cert-manager-bundle-rgd
 
     # - id: SomeChartArgofile
     #   template:
