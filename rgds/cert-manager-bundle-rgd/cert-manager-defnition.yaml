@@ -63,27 +63,27 @@ spec:
 
   # Define the resources this API will manage.
   resources:
-      - id: certManagerArgofile
-        readyWhen:
-          - ${certManagerArgofile.applicationsReady == "true"}
-          # - ${certManagerArgofile.status.sync.status == "Synced"}
-          # - ${certManagerArgofile.status.health.status == "Healthy"}
-        template:
-          apiVersion: kro.run/v1alpha1
-          kind: Argofile
-          metadata:
-            name: platform-argofile
-            namespace: platform
-          spec:
-            applications:
-            - name: cert-manager
-              enabled: true  
-              hook: PreSync
-              destination:
-                namespace: cert-manager
-              source:
-                repoURL: https://charts.jetstack.io
-                chart: cert-manager  
+      # - id: certManagerArgofile
+      #   readyWhen:
+      #     - ${certManagerArgofile.applicationsReady == "true"}
+      #     # - ${certManagerArgofile.status.sync.status == "Synced"}
+      #     # - ${certManagerArgofile.status.health.status == "Healthy"}
+      #   template:
+      #     apiVersion: kro.run/v1alpha1
+      #     kind: Argofile
+      #     metadata:
+      #       name: platform-argofile
+      #       namespace: platform
+      #     spec:
+      #       applications:
+      #       - name: cert-manager
+      #         enabled: true  
+      #         hook: PreSync
+      #         destination:
+      #           namespace: cert-manager
+      #         source:
+      #           repoURL: https://charts.jetstack.io
+      #           chart: cert-manager  
 
       - id: ingressConfigGenerator
         includeWhen:

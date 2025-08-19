@@ -33,7 +33,7 @@ spec:
 
     - id: certManagerBundleArgofile
       readyWhen:
-        - ${certManagerArgofile.applicationsReady == "true"}
+        - ${certManagerBundleArgofile.applicationsReady == "true"}
         # - ${certManagerArgofile.status.sync.status == "Synced"}
         # - ${certManagerArgofile.status.health.status == "Healthy"}
       template:
