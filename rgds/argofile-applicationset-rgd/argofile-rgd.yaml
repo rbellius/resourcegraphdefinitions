@@ -81,6 +81,8 @@ spec:
 
 
       - id: argocdApplication
+        includeWhen:
+          - '${schema.application}'
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -125,6 +127,8 @@ spec:
     
 
       - id: argocdApplicationSet
+        includeWhen:
+          - '${schema.spec.applications}'
         template:
           apiVersion: argoproj.io/v1alpha1
           kind: ApplicationSet
