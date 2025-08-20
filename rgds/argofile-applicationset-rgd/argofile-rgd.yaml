@@ -13,6 +13,7 @@ spec:
     kind: Argofile
 
     types:
+      AppType: string | enum="Application,ApplicationSet" | default="Application"
       Parameter:
         name: string | required=true
         value: string | required=true
@@ -67,6 +68,7 @@ spec:
 
     spec:
     
+      appType: AppType | default="ApplicationSet" enum="Application,ApplicationSet"
       applications: '[]Application | required=true'
       application: Application
 
@@ -82,7 +84,7 @@ spec:
 
       - id: argocdApplication
         includeWhen:
-          - '${schema.application}'
+          - '${schema.spec.appType == "Application"}'
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
@@ -128,7 +130,7 @@ spec:
 
       - id: argocdApplicationSet
         includeWhen:
-          - '${schema.spec.applications}'
+          - '${schema.spec.appType == "ApplicationSet"}'
         template:
           apiVersion: argoproj.io/v1alpha1
           kind: ApplicationSet
