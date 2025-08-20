@@ -13,7 +13,7 @@ spec:
     kind: Argofile
 
     types:
-      AppType: string | enum="Application,ApplicationSet" | default="Application"
+      AppType: string | enum="Application,ApplicationSet" default="Application"
       Parameter:
         name: string | required=true
         value: string | required=true
