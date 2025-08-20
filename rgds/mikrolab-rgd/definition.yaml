@@ -83,7 +83,7 @@ spec:
       kind: Argofile
       metadata:
         name: platform-argofile
-        namespace: platform
+        namespace: mikrolab
       spec:
         appType: Application
         application:
@@ -141,7 +141,7 @@ spec:
       kind: CertManangerBundle
       metadata:
         name: cert-manager-bundle
-        namespace: ${certManagerBundleArgofile.spec.applications[0].namespace}
+        namespace: cert-manager
         annotations:
           argocd.argoproj.io/instance: cert-manager-bundle
       spec:
