@@ -82,7 +82,7 @@ spec:
         name: platform-argofile
         namespace: platform
       spec:
-        applications:
+        application:
           - name: cert-manager-chart-app
             enabled: true  
             hook: PreSync
