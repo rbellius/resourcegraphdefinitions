@@ -91,10 +91,10 @@ spec:
             metadata:
               name: '${schema.metadata.name}-application'
               namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: '${schema.metadata.name}'
-                argocd.argoproj.io/hook: '${schema.spec.application.hook}'
-                argocd.argoproj.io/sync-wave: '${schema.spec.application.syncWave}'        
+              # annotations:
+              #   argocd.argoproj.io/instance: '${schema.metadata.name}'
+              #   argocd.argoproj.io/hook: '${schema.spec.application.hook}'
+              #   argocd.argoproj.io/sync-wave: '${schema.spec.application.syncWave}'        
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io/foreground
