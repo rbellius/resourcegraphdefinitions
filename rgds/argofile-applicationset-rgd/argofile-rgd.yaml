@@ -68,7 +68,7 @@ spec:
     spec:
     
       applications: '[]Application | required=true'
-      application: 'Application | default=[]'
+      application: Application
 
       goTemplate: boolean | default=false
       goTemplateOptions: string | default="missingkey=error"
