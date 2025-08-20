@@ -78,8 +78,6 @@ spec:
       - ${certManagerBundleArgofile.healthy == "true"}
       - ${certManagerBundleArgofile.synced == "true"}
       - ${certManagerBundleArgofile.state == "ACTIVE"}
-
-
     template:
       apiVersion: kro.run/v1alpha1
       kind: Argofile
@@ -147,7 +145,7 @@ spec:
         annotations:
           argocd.argoproj.io/instance: cert-manager-bundle
         labels:
-          rbellius.com/healthy: ${certManagerBundleArgofile.healthy.status}
+          rbellius.com/healthy: ${certManagerBundleArgofile.healthy.?status}
         # app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
       spec:
 
