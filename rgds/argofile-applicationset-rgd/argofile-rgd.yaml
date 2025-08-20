@@ -164,7 +164,7 @@ spec:
 
                 {{- if .source.values }}
                   helm:
-                    values: {{ .source.values | quote }}
+                    values: {{ .source.values | quote | nindent 12 }}
                 {{- end }}
 
 
