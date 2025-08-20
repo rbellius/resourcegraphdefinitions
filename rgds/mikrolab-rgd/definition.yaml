@@ -30,41 +30,49 @@ spec:
     
 
   resources:
-    # - id: arkrocdBundle
-    #   # dependsOn: 
-    #   #     - certMangerBundle
+  - id: ingressRequestArgofile
+    template:
+      apiVersion: kro.run/v1alpha1
+      kind: Argofile
+      metadata:
+        name: ingress-request-argofile
+
+      spec:
+        applications: 
+
+        - name: ingress-requres-rgd-loader
+          enabled: true 
+          hook: PreSync
+          destination:
+            namespace: cert-manager
+          source:
+            repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+            targetRevision: main
+            path: rgds/ingress-request-rgd
+ 
+
+    # - id: certManagerBundleArgofile
+    #   # readyWhen:
+    #     # - ${certManagerBundleArgofile.applicationsReady == "true"}
+    #     # - ${certManagerArgofile.status.sync.status == "Synced"}
+    #     # - ${certManagerArgofile.status.health.status == "Healthy"}
     #   template:
     #     apiVersion: kro.run/v1alpha1
-    #     kind: ArkroCDBundle
+    #     kind: Argofile
     #     metadata:
-    #       name: staging-arkrocd-bundle
-    #       namespace: argocd
-    #       annotations:
-    #         argocd.argoproj.io/instance: arkrocd-bundle
-
-
-    - id: certManagerBundleArgofile
-      # readyWhen:
-        # - ${certManagerBundleArgofile.applicationsReady == "true"}
-        # - ${certManagerArgofile.status.sync.status == "Synced"}
-        # - ${certManagerArgofile.status.health.status == "Healthy"}
-      template:
-        apiVersion: kro.run/v1alpha1
-        kind: Argofile
-        metadata:
-          name: platform-argofile
-          namespace: platform
-        spec:
-          applications:
-            - name: cert-manager-bundle-app
-              enabled: true  
-              hook: PreSync
-              destination:
-                namespace: cert-manager
-              source:
-                repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
-                targetRevision: main
-                path: rgds/cert-manager-bundle-rgd
+    #       name: platform-argofile
+    #       namespace: platform
+    #     spec:
+    #       applications:
+    #         - name: cert-manager-bundle-app
+    #           enabled: true  
+    #           hook: PreSync
+    #           destination:
+    #             namespace: cert-manager
+    #           source:
+    #             repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+    #             targetRevision: main
+    #             path: rgds/cert-manager-bundle-rgd
 
     # - id: SomeChartArgofile
     #   template:
