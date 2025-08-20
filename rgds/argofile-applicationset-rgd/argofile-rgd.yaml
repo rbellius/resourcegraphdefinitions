@@ -93,39 +93,39 @@ spec:
               namespace: argocd
               annotations:
                 argocd.argoproj.io/instance: '${schema.metadata.name}'
-                argocd.argoproj.io/hook: '${schema.application.hook}'
-                argocd.argoproj.io/sync-wave: '${schema.application.syncWave}'        
+                argocd.argoproj.io/hook: '${schema.spec.application.hook}'
+                argocd.argoproj.io/sync-wave: '${schema.spec.application.syncWave}'        
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io/foreground
 
             spec:
-              project: ${schema.application.project}
+              project: ${schema.spec.application.project}
 
               syncPolicy:
                 automated:
-                  selfHeal: ${schema.application.selfHeal}
+                  selfHeal: ${schema.spec.application.selfHeal}
                   prune: true
                   allowEmpty: true
               
                 syncOptions:
-                  - CreateNamespace=${schema.application.sync.createNamespace}
-                  - ApplyOutOfSyncOnly=${schema.application.sync.applyOutOfSyncOnly}
-                  - Replace=${schema.application.sync.replace}
-                  - Validate=${schema.application.sync.validate}
+                  - CreateNamespace=${schema.spec.application.sync.createNamespace}
+                  - ApplyOutOfSyncOnly=${schema.spec.application.sync.applyOutOfSyncOnly}
+                  - Replace=${schema.application.spec.sync.replace}
+                  - Validate=${schema.application.spec.sync.validate}
 
               destination:
-                server: ${schema.application.destination.server}
-                namespace: ${schema.application.destination.namespace}
+                server: ${schema.spec.application.destination.server}
+                namespace: ${schema.spec.application.destination.namespace}
 
               source:
-                repoURL: ${schema.application.source.repoURL}
-                chart: ${schema.application.source.chart}
-                path: ${schema.application.source.path}
-                targetRevision: ${schema.application.source.targetRevision}
+                repoURL: ${schema.spec.application.source.repoURL}
+                chart: ${schema.spec.application.source.chart}
+                path: ${schema.spec.application.source.path}
+                targetRevision: ${schema.spec.application.source.targetRevision}
                 helm:
                   values: |
-                    ${ schema.application.source.values }
+                    ${ schema.spec.application.source.values }
     
 
       - id: argocdApplicationSet
