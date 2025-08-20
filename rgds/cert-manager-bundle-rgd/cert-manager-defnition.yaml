@@ -116,72 +116,68 @@ spec:
       #       domain:         ${schema.spec.dns.providers.default.domain}
       #       clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
-      - id: certManagerChart
-        template:
-          apiVersion: kro.run/v1alpha1
-          kind: Argofile
-          metadata:
-            name: platform-argofile
-            namespace: platform
-          spec:
-            appType: Application
-            application:
-                name: cert-manager
-                enabled: true  
-                hook: PreSync
-                destination:
-                  namespace: cert-manager
-                source:
-                  repoURL: https://charts.jetstack.io
-                  targetRevision: 1.17.2
-                  chart: cert-manager
-
-      # - id: certmanager
+      # - id: certManagerChart
       #   template:
-      #       apiVersion: argoproj.io/v1alpha1
-      #       kind: Application
-      #       metadata:
-      #         name: cert-manager
-      #         namespace: argocd
-      #         annotations:
-      #           argocd.argoproj.io/instance: cert-manager-bundle
-      #           # argocd.argoproj.io/hook: PreSync
-      #           # argocd.argoproj.io/sync-wave: "-10"              
+      #     apiVersion: kro.run/v1alpha1
+      #     kind: Argofile
+      #     metadata:
+      #       name: platform-argofile
+      #       namespace: platform
+      #     spec:
+      #       appType: Application
+      #       application:
+      #           name: cert-manager-chart
+      #           enabled: true  
+      #           hook: PreSync
+      #           destination:
+      #             namespace: cert-manager
+      #           source:
+      #             repoURL: https://charts.jetstack.io
+      #             targetRevision: 1.17.2
+      #             chart: cert-manager
+
+      - id: certmanager
+        template:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Application
+            metadata:
+              name: cert-manager
+              namespace: argocd
+              annotations:
+                argocd.argoproj.io/instance: cert-manager-bundle
+                # argocd.argoproj.io/hook: PreSync
+                # argocd.argoproj.io/sync-wave: "-10"              
       
-      #         finalizers:
-      #           - resources-finalizer.argocd.argoproj.io/foreground
+              finalizers:
+                - resources-finalizer.argocd.argoproj.io/foreground
 
-      #       spec:
-      #         project: default
-
-      #         syncPolicy:
-      #           automated:
-      #             selfHeal: true
-      #             prune: true
-      #             allowEmpty: true
+            spec:
+              syncPolicy:
+                automated:
+                  selfHeal: true
               
-      #           syncOptions:
-      #             - CreateNamespace=true
-      #             # - ApplyOutOfSyncOnly=true
+                syncOptions:
+                  - CreateNamespace=true
+                  # - ApplyOutOfSyncOnly=true
 
-      #         destination:
-      #           server: https://kubernetes.default.svc
-      #           namespace: cert-manager
+              destination:
+                server: https://kubernetes.default.svc
+                namespace: cert-manager
 
-      #         source:
-      #           repoURL: https://charts.jetstack.io
-      #           chart: cert-manager  
-      #           targetRevision: 1.17.2
-      #           helm:
-      #             valuesObject:
-      #               crds:
-      #                 enabled: true
-      #                 keep: false
+              source:
+                repoURL: https://charts.jetstack.io
+                chart: cert-manager  
+                targetRevision: 1.17.2
+                helm:
+                  valuesObject:
+                    crds:
+                      enabled: true
+                      keep: false
                       
-      #               enableCertificateOwnerRef: true
-      #               extraArgs:
-      #                 - --dns01-recursive-nameservers-only
-      #                 - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
+                    enableCertificateOwnerRef: true
+                    extraArgs:
+                      - --dns01-recursive-nameservers-only
+                      - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
 
 
