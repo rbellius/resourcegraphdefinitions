@@ -72,8 +72,8 @@ spec:
 
     
   - id: certManagerChartArgofile
-    includeWhen:
-      - ${schema.spec.certmanager.enabled == "true"}
+    # includeWhen:
+    #   - ${schema.spec.certmanager.enabled == "true"}
     # readyWhen:
       # - ${certManagerBundleArgofile.applicationsReady == "true"}
       # - ${certManagerArgofile.status.sync.status == "Synced"}
