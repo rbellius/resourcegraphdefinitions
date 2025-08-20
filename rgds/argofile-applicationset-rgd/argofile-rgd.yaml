@@ -64,9 +64,11 @@ spec:
       errorsOccured: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ErrorOccurred" && app.status == "True")}
       resourcesUpToDate: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ResourcesUpToDate" && app.status == "True")}
       parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
+
     spec:
     
       applications: '[]Application | required=true'
+      application: 'Application | default={}'
 
       goTemplate: boolean | default=false
       goTemplateOptions: string | default="missingkey=error"
@@ -76,6 +78,54 @@ spec:
         preserveResourcesOnDelete: boolean | default=false
 
   resources:
+
+
+      - id: argocdApplication
+        template:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Application
+            metadata:
+              name: '${schema.metadata.name}-application'
+              namespace: argocd
+              annotations:
+                argocd.argoproj.io/instance: '${schema.metadata.name}'
+                argocd.argoproj.io/hook: PreSync
+                argocd.argoproj.io/sync-wave: "-10"              
+      
+              finalizers:
+                - resources-finalizer.argocd.argoproj.io/foreground
+
+            spec:
+              project: default
+
+              syncPolicy:
+                automated:
+                  selfHeal: true
+                  prune: true
+                  allowEmpty: true
+              
+                syncOptions:
+                  - CreateNamespace=true
+                  # - ApplyOutOfSyncOnly=true
+
+              destination:
+                server: https://kubernetes.default.svc
+                namespace: cert-manager
+
+              source:
+                repoURL: https://charts.jetstack.io
+                chart: cert-manager  
+                targetRevision: 1.17.2
+                helm:
+                  valuesObject:
+                    crds:
+                      enabled: true
+                      keep: false
+                      
+                    enableCertificateOwnerRef: true
+                    extraArgs:
+                      - --dns01-recursive-nameservers-only
+                      - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
       - id: argocdApplicationSet
         template:
           apiVersion: argoproj.io/v1alpha1
@@ -164,7 +214,7 @@ spec:
 
                 {{- if .source.values }}
                   helm:
-                    values: {{ .source.values | quote | nindent 12 }}
+                    values: {{ .source.values | quote | nindent 12  }}
                 {{- end }}
 
 
