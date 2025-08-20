@@ -74,10 +74,12 @@ spec:
   - id: certManagerChartArgofile
     # includeWhen:
     #   - ${schema.spec.certmanager.enabled == "true"}
-    # readyWhen:
-      # - ${certManagerBundleArgofile.applicationsReady == "true"}
-      # - ${certManagerArgofile.status.sync.status == "Synced"}
-      # - ${certManagerArgofile.status.health.status == "Healthy"}
+    readyWhen:
+      - ${certManagerBundleArgofile.healthy == "true"}
+      - ${certManagerBundleArgofile.synced == "true"}
+      - ${certManagerBundleArgofile.state == "ACTIVE"}
+
+
     template:
       apiVersion: kro.run/v1alpha1
       kind: Argofile
