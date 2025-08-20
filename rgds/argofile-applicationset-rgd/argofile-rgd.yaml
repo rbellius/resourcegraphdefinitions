@@ -88,8 +88,8 @@ spec:
         includeWhen:
           - '${schema.spec.appType == "Application"}'
         readyWhen:
-          - '${argocdApplication.status.conditions.exists(c, c.type == "Healthy" && c.status == "True")}'
-          - '${argocdApplication.status.conditions.exists(c, c.type == "Synced" && c.status == "True")}'
+          - '${argocdApplication.status.health.status == "Healthy"}'
+          - '${argocdApplication.status.sync.status == "Synced"}'
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application

@@ -16,52 +16,64 @@ spec:
       env: string | default="staging" enum="staging,production"
 
   resources:
-      - id: argocdManagedKro
-        template:
-            apiVersion: argoproj.io/v1alpha1
-            kind: Application
-            metadata:
-              name: kro
-              namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: argocd
-                # argocd.argoproj.io/sync-wave: "-10"
-                argocd.argoproj.io/hook: PreSync              
+
+    # - id: argocdKroArgofile
+    #   template:
+    #     - name: arkrocd-bundle-loader
+    #       enabled: true 
+    #       hook: PreSync
+    #       destination:
+    #         namespace: argocd
+    #       source:
+    #         repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+    #         targetRevision: main
+    #         path: rgds/arkrocd-bundle
+      # - id: argocdManagedKro
+      #   template:
+      #       apiVersion: argoproj.io/v1alpha1
+      #       kind: Application
+      #       metadata:
+      #         name: kro
+      #         namespace: argocd
+      #         annotations:
+      #           argocd.argoproj.io/instance: argocd
+      #           # argocd.argoproj.io/sync-wave: "-10"
+      #           argocd.argoproj.io/hook: PreSync              
       
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io
-              labels:
-                  app.kubernetes.io/name:       kro-application
-                  app.kubernetes.io/instance:   arkrocd-bundle
-                  app.kubernetes.io/component:  kro
-                  app.kubernetes.io/part-of:    mikrolab
-            spec:
+      #         finalizers:
+      #           - resources-finalizer.argocd.argoproj.io
+      #         labels:
+      #             app.kubernetes.io/name:       kro-application
+      #             app.kubernetes.io/instance:   arkrocd-bundle
+      #             app.kubernetes.io/component:  kro
+      #             app.kubernetes.io/part-of:    mikrolab
+      #       spec:
 
-              project: default
+      #         project: default
 
-              syncPolicy:
-                automated:
-                  selfHeal: true
-                  prune: true
-                  allowEmpty: true
+      #         syncPolicy:
+      #           automated:
+      #             selfHeal: true
+      #             prune: true
+      #             allowEmpty: true
 
-                syncOptions:
-                  - CreateNamespace=true
-                  # - ApplyOutOfSyncOnly=true
+      #           syncOptions:
+      #             - CreateNamespace=true
+      #             # - ApplyOutOfSyncOnly=true
 
-              destination:
-                server: https://kubernetes.default.svc
-                namespace: kro
+      #         destination:
+      #           server: https://kubernetes.default.svc
+      #           namespace: kro
               
-              source:
-                repoURL: git@github.com:rbellius/kro.git
-                targetRevision: main
-                path: helm
-                helm:
-                  valuesObject:
-                    crds:
-                      install: true
-                      keep: false
+      #         source:
+      #           repoURL: git@github.com:rbellius/kro.git
+      #           targetRevision: main
+      #           path: helm
+      #           helm:
+      #             valuesObject:
+      #               crds:
+      #                 install: true
+      #                 keep: false
     
 
 
@@ -125,15 +137,9 @@ spec:
                         params:
                           server.insecure: true
 
-                      # server:
-                      #   ingress:
-                      #     tls: true
-                      #     enabled: true
-                      #     annotations:
-                      #       cert-manager.io/cluster-issuer: ${schema.spec.provider}-letsencrypt-${schema.spec.env}
+
                         cm:
                           timeout.reconciliation: 15s
-                          # application.instanceLabelKey: argocd.argoproj.io/instance
                           application.resourceTrackingMethod: "annotation+label"
                           applicationsetcontroller.enable.new.git.file.globbing: "true"
 
