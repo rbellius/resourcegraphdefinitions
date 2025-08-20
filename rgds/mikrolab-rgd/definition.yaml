@@ -50,7 +50,24 @@ spec:
             targetRevision: main
             path: rgds/ingress-request-rgd
  
+  - id: argocdIngressRequest
+    template:
+        apiVersion: kro.run/v1alpha1
+        kind: IngressRequest
+        metadata:
+          name: argocd
+          namespace: argocd
+          annotations:
+            argocd.argoproj.io/instance: argocd-ingress          
 
+        spec:
+
+          env: ${schema.spec.env}
+          subdomain: argocdtest
+          service:
+            name: argocd-server
+
+    
     # - id: certManagerBundleArgofile
     #   # readyWhen:
     #     # - ${certManagerBundleArgofile.applicationsReady == "true"}
