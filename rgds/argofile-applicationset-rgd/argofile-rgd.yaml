@@ -61,9 +61,9 @@ spec:
       #   - status: 'True'
 
     #   ${self.status.conditions.exists(c, c.type == "Ready" && c.status == "True")}  
+      errorsOccured: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ErrorOccurred" && app.status == "True")}
       resourcesUpToDate: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ResourcesUpToDate" && app.status == "True")}
-      # applicationsHealthy: ${argocdApplicationSetstatus.resources.all(app, app.health.status == "Healthy")}
-      # applicationsReady: ${argocdApplicationSetstatus.resources.all(app, app.status == "Synced" && app.health.status == "Healthy")}
+      parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
     spec:
     
       applications: '[]Application | required=true'
