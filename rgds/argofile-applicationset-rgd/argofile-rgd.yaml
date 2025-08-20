@@ -111,8 +111,8 @@ spec:
                 syncOptions:
                   - CreateNamespace=${schema.spec.application.sync.createNamespace}
                   - ApplyOutOfSyncOnly=${schema.spec.application.sync.applyOutOfSyncOnly}
-                  - Replace=${schema.application.spec.sync.replace}
-                  - Validate=${schema.application.spec.sync.validate}
+                  - Replace=${schema.spec.application.sync.replace}
+                  - Validate=${schema.spec.application.sync.validate}
 
               destination:
                 server: ${schema.spec.application.destination.server}
