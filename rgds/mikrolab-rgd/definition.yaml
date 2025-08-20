@@ -85,7 +85,7 @@ spec:
       spec:
         appType: Application
         application:
-          - name: cert-manager-chart-app
+            name: cert-manager-chart-app
             enabled: true  
             hook: PreSync
             destination:
