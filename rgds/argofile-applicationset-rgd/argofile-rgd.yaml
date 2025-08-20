@@ -116,16 +116,16 @@ spec:
 
               destination:
                 server: ${schema.application.destination.server}
-                namespace: ${schema.application.destination.namespace | default schema.application.name}
+                namespace: ${schema.application.destination.namespace}
 
               source:
                 repoURL: ${schema.application.source.repoURL}
-                chart: ${schema.application.source.chart | default ""}
-                path: ${schema.application.source.path | default ""}
+                chart: ${schema.application.source.chart}
+                path: ${schema.application.source.path}
                 targetRevision: ${schema.application.source.targetRevision}
                 helm:
-                  valuesObject:
-                    ${ schema.application.source.values | quote | nindent 12 }
+                  values: |
+                    ${ schema.application.source.values }
     
 
       - id: argocdApplicationSet
