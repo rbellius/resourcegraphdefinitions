@@ -146,6 +146,9 @@ spec:
         namespace: cert-manager
         annotations:
           argocd.argoproj.io/instance: cert-manager-bundle
+        labels:
+          rbellius.com/healthy: ${certManagerBundleArgofile.healthy.status}
+        # app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
       spec:
 
         env: ${schema.spec.env}
