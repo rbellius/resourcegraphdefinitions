@@ -67,7 +67,7 @@ spec:
       parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
 
       healthy: ${argocdApplication.status.health.status == "Healthy"}
-      # healthy: ${argocdApplication.status.sync.status == "Synced"}
+      synced: ${argocdApplication.status.sync.status == "Synced"}
     spec:
     
       appType: AppType | default="ApplicationSet" enum="Application,ApplicationSet"
