@@ -66,8 +66,8 @@ spec:
       resourcesUpToDate: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ResourcesUpToDate" && app.status == "True")}
       parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
 
-      synced: ${argocdApplication.status.health.exists(h, h.status == "Healthy")}
-      healthy: ${argocdApplication.status.sync.exists(s, s.status == "Synced")}
+      healthy: ${argocdApplication.status.health.status == "Healthy")}
+      # healthy: ${argocdApplication.status.sync.status == "Synced"}
     spec:
     
       appType: AppType | default="ApplicationSet" enum="Application,ApplicationSet"
