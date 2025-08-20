@@ -89,43 +89,41 @@ spec:
               namespace: argocd
               annotations:
                 argocd.argoproj.io/instance: '${schema.metadata.name}'
-                argocd.argoproj.io/hook: PreSync
-                argocd.argoproj.io/sync-wave: "-10"              
+                argocd.argoproj.io/hook: '${schema.application.hook}'
+                argocd.argoproj.io/sync-wave: '${schema.application.syncWave}'        
       
               finalizers:
                 - resources-finalizer.argocd.argoproj.io/foreground
 
             spec:
-              project: default
+              project: ${schema.application.project}
 
               syncPolicy:
                 automated:
-                  selfHeal: true
+                  selfHeal: ${schema.application.selfHeal}
                   prune: true
                   allowEmpty: true
               
                 syncOptions:
-                  - CreateNamespace=true
-                  # - ApplyOutOfSyncOnly=true
+                  - CreateNamespace=${schema.application.sync.createNamespace}
+                  - ApplyOutOfSyncOnly=${schema.application.sync.applyOutOfSyncOnly}
+                  - Replace=${schema.application.sync.replace}
+                  - Validate=${schema.application.sync.validate}
 
               destination:
-                server: https://kubernetes.default.svc
-                namespace: cert-manager
+                server: ${schema.application.destination.server}
+                namespace: ${schema.application.destination.namespace | default schema.application.name}
 
               source:
-                repoURL: https://charts.jetstack.io
-                chart: cert-manager  
-                targetRevision: 1.17.2
+                repoURL: ${schema.application.source.repoURL}
+                chart: ${schema.application.source.chart | default ""}
+                path: ${schema.application.source.path | default ""}
+                targetRevision: ${schema.application.source.targetRevision}
                 helm:
                   valuesObject:
-                    crds:
-                      enabled: true
-                      keep: false
-                      
-                    enableCertificateOwnerRef: true
-                    extraArgs:
-                      - --dns01-recursive-nameservers-only
-                      - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
+                    ${ schema.application.source.values | quote | nindent 12 }
+    
+
       - id: argocdApplicationSet
         template:
           apiVersion: argoproj.io/v1alpha1
