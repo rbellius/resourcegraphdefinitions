@@ -85,83 +85,103 @@ spec:
       #           repoURL: https://charts.jetstack.io
       #           chart: cert-manager  
 
-      - id: ingressConfigGenerator
-        includeWhen:
-          - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
-          # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
-        # readyWhen:
-        #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
-        template:
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: ingress-request-configmap
-            namespace: cert-manager
-            annotations:
+      # - id: ingressConfigGenerator
+      #   includeWhen:
+      #     - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
+      #     # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
+      #   # readyWhen:
+      #   #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
+      #   template:
+      #     apiVersion: v1
+      #     kind: ConfigMap
+      #     metadata:
+      #       name: ingress-request-configmap
+      #       namespace: cert-manager
+      #       annotations:
          
-              argocd.argoproj.io/instance: cert-manager-bundle
-              # argocd.argoproj.io/hook: PreSync
-            finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
-              # argocd.argoproj.io/sync-wave: "0"
-            labels:
-              app.kubernetes.io/instance:   cert-manager-bundle
-              app.kubernetes.io/name:       ingress-request-configmap
-              app.kubernetes.io/part-of:    mikrolab
+      #         argocd.argoproj.io/instance: cert-manager-bundle
+      #         # argocd.argoproj.io/hook: PreSync
+      #       finalizers:
+      #           - resources-finalizer.argocd.argoproj.io/foreground
+      #         # argocd.argoproj.io/sync-wave: "0"
+      #       labels:
+      #         app.kubernetes.io/instance:   cert-manager-bundle
+      #         app.kubernetes.io/name:       ingress-request-configmap
+      #         app.kubernetes.io/part-of:    mikrolab
 
-          data:
-            # This is the configmap that will be used by the ingress-request controllerto manage ingress requests.
-            # It is used to configure the ingress class and the default domain.
-            ingressClass:   ${schema.spec.ingress.class}
-            domain:         ${schema.spec.dns.providers.default.domain}
-            clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
+      #     data:
+      #       # This is the configmap that will be used by the ingress-request controllerto manage ingress requests.
+      #       # It is used to configure the ingress class and the default domain.
+      #       ingressClass:   ${schema.spec.ingress.class}
+      #       domain:         ${schema.spec.dns.providers.default.domain}
+      #       clusterIssuer:  ${schema.spec.dns.providers.default.provider}-letsencrypt-${schema.spec.env} # This is the cluster issuer that will be used by the ingress-request controller to issue certificates for the ingress requests.
 
-      - id: certmanager
+      - id: certManagerChart
         template:
-            apiVersion: argoproj.io/v1alpha1
-            kind: Application
-            metadata:
-              name: cert-manager
-              namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: cert-manager-bundle
-                # argocd.argoproj.io/hook: PreSync
-                # argocd.argoproj.io/sync-wave: "-10"              
+          apiVersion: kro.run/v1alpha1
+          kind: Argofile
+          metadata:
+            name: platform-argofile
+            namespace: platform
+          spec:
+            appType: Application
+            application:
+                name: cert-manager
+                enabled: true  
+                hook: PreSync
+                destination:
+                  namespace: cert-manager
+                source:
+                  repoURL: https://charts.jetstack.io
+                  targetRevision: 1.17.2
+                  chart: cert-manager
+
+      # - id: certmanager
+      #   template:
+      #       apiVersion: argoproj.io/v1alpha1
+      #       kind: Application
+      #       metadata:
+      #         name: cert-manager
+      #         namespace: argocd
+      #         annotations:
+      #           argocd.argoproj.io/instance: cert-manager-bundle
+      #           # argocd.argoproj.io/hook: PreSync
+      #           # argocd.argoproj.io/sync-wave: "-10"              
       
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
+      #         finalizers:
+      #           - resources-finalizer.argocd.argoproj.io/foreground
 
-            spec:
-              project: default
+      #       spec:
+      #         project: default
 
-              syncPolicy:
-                automated:
-                  selfHeal: true
-                  prune: true
-                  allowEmpty: true
+      #         syncPolicy:
+      #           automated:
+      #             selfHeal: true
+      #             prune: true
+      #             allowEmpty: true
               
-                syncOptions:
-                  - CreateNamespace=true
-                  # - ApplyOutOfSyncOnly=true
+      #           syncOptions:
+      #             - CreateNamespace=true
+      #             # - ApplyOutOfSyncOnly=true
 
-              destination:
-                server: https://kubernetes.default.svc
-                namespace: cert-manager
+      #         destination:
+      #           server: https://kubernetes.default.svc
+      #           namespace: cert-manager
 
-              source:
-                repoURL: https://charts.jetstack.io
-                chart: cert-manager  
-                targetRevision: 1.17.2
-                helm:
-                  valuesObject:
-                    crds:
-                      enabled: true
-                      keep: false
+      #         source:
+      #           repoURL: https://charts.jetstack.io
+      #           chart: cert-manager  
+      #           targetRevision: 1.17.2
+      #           helm:
+      #             valuesObject:
+      #               crds:
+      #                 enabled: true
+      #                 keep: false
                       
-                    enableCertificateOwnerRef: true
-                    extraArgs:
-                      - --dns01-recursive-nameservers-only
-                      - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
+      #               enableCertificateOwnerRef: true
+      #               extraArgs:
+      #                 - --dns01-recursive-nameservers-only
+      #                 - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
 
 
