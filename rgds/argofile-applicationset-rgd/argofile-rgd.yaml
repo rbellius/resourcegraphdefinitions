@@ -69,7 +69,7 @@ spec:
     spec:
     
       appType: AppType | default="ApplicationSet" enum="Application,ApplicationSet"
-      applications: '[]Application | required=true'
+      applications: '[]Application'
       application: Application
 
       goTemplate: boolean | default=false
