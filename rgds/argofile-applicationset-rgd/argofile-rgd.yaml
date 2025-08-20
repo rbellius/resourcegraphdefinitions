@@ -123,9 +123,9 @@ spec:
                 chart: ${schema.spec.application.source.chart}
                 path: ${schema.spec.application.source.path}
                 targetRevision: ${schema.spec.application.source.targetRevision}
-                helm:
-                  values: |
-                    ${ schema.spec.application.source.values }
+                # helm:
+                #   values: |
+                #     ${ schema.spec.application.source.values }
     
 
       - id: argocdApplicationSet

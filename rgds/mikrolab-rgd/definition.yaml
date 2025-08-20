@@ -40,7 +40,7 @@ spec:
       spec:
         application: 
 
-        - name: ingress-requres-rgd-loader
+          name: ingress-requres-rgd-loader
           enabled: true 
           hook: PreSync
           destination:
