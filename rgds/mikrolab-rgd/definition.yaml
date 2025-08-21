@@ -71,31 +71,31 @@ spec:
   #           name: argocd-server
 
     
-  - id: certManagerChartArgofile
-    # includeWhen:
-    #   - ${schema.spec.certmanager.enabled == "true"}
-    readyWhen:
-      - ${certManagerBundleArgofile.healthy == "true"}
-      - ${certManagerBundleArgofile.synced == "true"}
-      - ${certManagerBundleArgofile.state == "ACTIVE"}
-    template:
-      apiVersion: kro.run/v1alpha1
-      kind: Argofile
-      metadata:
-        name: platform-argofile
-        namespace: mikrolab
-      spec:
-        appType: Application
-        application:
-            name: cert-manager-chart-app
-            enabled: true  
-            hook: PreSync
-            destination:
-              namespace: cert-manager
-            source:
-              repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
-              targetRevision: main
-              path: rgds/cert-manager-bundle-rgd
+  # - id: certManagerChartArgofile
+  #   # includeWhen:
+  #   #   - ${schema.spec.certmanager.enabled == "true"}
+  #   readyWhen:
+  #     - ${certManagerBundleArgofile.healthy == "true"}
+  #     - ${certManagerBundleArgofile.synced == "true"}
+  #     - ${certManagerBundleArgofile.state == "ACTIVE"}
+  #   template:
+  #     apiVersion: kro.run/v1alpha1
+  #     kind: Argofile
+  #     metadata:
+  #       name: platform-argofile
+  #       namespace: mikrolab
+  #     spec:
+  #       appType: Application
+  #       application:
+  #           name: cert-manager-chart-app
+  #           enabled: true  
+  #           hook: PreSync
+  #           destination:
+  #             namespace: cert-manager
+  #           source:
+  #             repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+  #             targetRevision: main
+  #             path: rgds/cert-manager-bundle-rgd
 
     # - id: SomeChartArgofile
     #   template:
@@ -120,59 +120,59 @@ spec:
     #               bar: true
 
 
-    # - id: certManagerNamespace
-    #   template:
-    #     apiVersion: v1
-    #     kind: Namespace
-    #     metadata:
-    #       name: cert-manager
-    #       labels:
-    #         app.kubernetes.io/name: cert-manager
-    #         app.kubernetes.io/instance: cert-manager
-    #         app.kubernetes.io/component: cert-manager
-    #         app.kubernetes.io/part-of: cert-manager
-    #         app.kubernetes.io/managed-by: argocd
+    - id: certManagerNamespace
+      template:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: cert-manager
+          labels:
+            app.kubernetes.io/name: cert-manager
+            app.kubernetes.io/instance: cert-manager
+            app.kubernetes.io/component: cert-manager
+            app.kubernetes.io/part-of: cert-manager
+            app.kubernetes.io/managed-by: argocd
             
-  - id: certMangerBundle
-    # includeWhen:
-    #   - ${schema.spec.certmanager.enabled}
-    template:
-      apiVersion: kro.run/v1alpha1
-      kind: CertManangerBundle
-      metadata:
-        name: cert-manager-bundle
-        namespace: cert-manager
-        annotations:
-          argocd.argoproj.io/instance: cert-manager-bundle
-        labels:
-          rbellius.com/healthy: ${certManagerBundleArgofile.healthy.?status}
-        # app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
-      spec:
+  # - id: certMangerBundle
+  #   # includeWhen:
+  #   #   - ${schema.spec.certmanager.enabled}
+  #   template:
+  #     apiVersion: kro.run/v1alpha1
+  #     kind: CertManangerBundle
+  #     metadata:
+  #       name: cert-manager-bundle
+  #       namespace: cert-manager
+  #       annotations:
+  #         argocd.argoproj.io/instance: cert-manager-bundle
+  #       labels:
+  #         rbellius.com/healthy: ${certManagerBundleArgofile.healthy.?status}
+  #       # app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
+  #     spec:
 
-        env: ${schema.spec.env}
+  #       env: ${schema.spec.env}
 
-        ingress:
-          class: ${schema.spec.ingress.class}
-          requests: true
+  #       ingress:
+  #         class: ${schema.spec.ingress.class}
+  #         requests: true
 
-        dns:
-          providers: 
-            duckdns:
-              enabled: ${schema.spec.certmanager.provider == "duckdns"}
-              email: ${schema.spec.certmanager.email}
-              domain: ${schema.spec.certmanager.domain}
-              dynamic: true
-            # cloudflare:
-            #   enabled: false
-            #   email: eddie.moya@gmail.com
-            #   domain: cloudbreaker.me
-            builtin:
-              enabled: ${schema.spec.certmanager.provider == "cloudflare"}
-              provider: cloudflare
-              email: ${schema.spec.certmanager.email}
-              domain: ${schema.spec.certmanager.domain}
-            default:
-              provider: ${schema.spec.certmanager.provider}
-              domain: ${schema.spec.certmanager.domain}
+  #       dns:
+  #         providers: 
+  #           duckdns:
+  #             enabled: ${schema.spec.certmanager.provider == "duckdns"}
+  #             email: ${schema.spec.certmanager.email}
+  #             domain: ${schema.spec.certmanager.domain}
+  #             dynamic: true
+  #           # cloudflare:
+  #           #   enabled: false
+  #           #   email: eddie.moya@gmail.com
+  #           #   domain: cloudbreaker.me
+  #           builtin:
+  #             enabled: ${schema.spec.certmanager.provider == "cloudflare"}
+  #             provider: cloudflare
+  #             email: ${schema.spec.certmanager.email}
+  #             domain: ${schema.spec.certmanager.domain}
+  #           default:
+  #             provider: ${schema.spec.certmanager.provider}
+  #             domain: ${schema.spec.certmanager.domain}
 
   
