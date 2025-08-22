@@ -30,6 +30,47 @@ spec:
     
 
   resources:
+
+    - id: certManagerRGD
+      template:
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          name: cert-manager-rgd-application
+          namespace: argocd
+          annotations:
+            # argocd.argoproj.io/sync-wave: ""
+            argocd.argoproj.io/hook: PreSync
+
+            
+          finalizers:
+            # The default behaviour is foreground cascading deletion
+            # - resources-finalizer.argocd.argoproj.io
+            # Alternatively, you can use background cascading deletion
+            - resources-finalizer.argocd.argoproj.io/background
+
+        spec:
+          project: default
+
+          syncPolicy:
+            automated:
+              selfHeal: true
+              prune: true
+              # allowEmpty: true
+          
+            syncOptions:
+              - CreateNamespace=true
+              - Replace=true
+
+          destination:
+            server: https://kubernetes.default.svc
+            namespace: cert-manager
+
+          source:
+            repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
+            path: rgds/cert-manager-bundle-rgd
+            targetRevision: main
+
   # - id: ingressRequestArgofile
   #   template:
   #     apiVersion: kro.run/v1alpha1
@@ -120,18 +161,18 @@ spec:
     #               bar: true
 
 
-    - id: certManagerNamespace
-      template:
-        apiVersion: v1
-        kind: Namespace
-        metadata:
-          name: cert-manager
-          labels:
-            app.kubernetes.io/name: cert-manager
-            app.kubernetes.io/instance: cert-manager
-            app.kubernetes.io/component: cert-manager
-            app.kubernetes.io/part-of: cert-manager
-            app.kubernetes.io/managed-by: argocd
+    # - id: certManagerNamespace
+    #   template:
+    #     apiVersion: v1
+    #     kind: Namespace
+    #     metadata:
+    #       name: cert-manager
+    #       labels:
+    #         app.kubernetes.io/name: cert-manager
+    #         app.kubernetes.io/instance: cert-manager
+    #         app.kubernetes.io/component: cert-manager
+    #         app.kubernetes.io/part-of: cert-manager
+    #         app.kubernetes.io/managed-by: argocd
             
   # - id: certMangerBundle
   #   # includeWhen:
