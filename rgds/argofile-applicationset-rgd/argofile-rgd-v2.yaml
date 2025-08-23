@@ -182,7 +182,7 @@ spec:
                   argocd.argoproj.io/sync-wave: '{{ .syncWave }}'
                   argocd.argoproj.io/hook:      '{{ .hook }}'
                 finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
+                - resources-finalizer.argocd.argoproj.io
                 
                 labels:
                   # app.kubernetes.io/part-of:  
@@ -194,6 +194,8 @@ spec:
                 syncPolicy:
                   automated:
                     selfHeal: true
+                    prune: true
+
                     
                   syncOptions:
                     - 'CreateNamespace={{ .sync.createNamespace }}'
