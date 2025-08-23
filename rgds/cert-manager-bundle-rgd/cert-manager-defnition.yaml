@@ -45,7 +45,12 @@ spec:
               provider: string | default="duckdns" enum="duckdns,builtin" # Default provider to use if none is specified
               domain: string  # Default domain to use if none is specified
 
-              
+    status:
+      certmanager:
+        resources: ${certmanager.status.operationState.syncResult.resources}
+        healthy: ${certmanager.status.health.status}
+        synced: ${certmanager.status.sync.status}  
+    
 
 
     # status:
