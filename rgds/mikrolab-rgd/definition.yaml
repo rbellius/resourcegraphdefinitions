@@ -27,7 +27,11 @@ spec:
         provider: string | default="duckdns" enum="duckdns,cloudflare"
         domain: string  
         email: string
-    
+
+
+    # status:
+    #   healthy: ${argocdApplication.status.health.status}
+    #   synced: ${argocdApplication.status.sync.status}  
 
   resources:
 
