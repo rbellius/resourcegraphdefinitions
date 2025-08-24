@@ -388,6 +388,7 @@ spec:
 
       - id: duckdnsddns 
         includeWhen:
+          - ${schema.spec.dns.providers.duckdns.enabled} # Only include if the user wants to use dynamic DNS
           - ${schema.spec.dns.providers.duckdns.dynamic} # Only include if the user wants to use dynamic DNS
         template:
           apiVersion: argoproj.io/v1alpha1
