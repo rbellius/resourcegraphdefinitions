@@ -42,7 +42,7 @@ spec:
               email: string 
               domain: string
             default: 
-              provider: string | default="duckdns" enum="duckdns,builtin" # Default provider to use if none is specified
+              provider: string | default="duckdns" enum="duckdns,cloudflare" # Default provider to use if none is specified
               domain: string  # Default domain to use if none is specified
 
     status:
@@ -141,7 +141,7 @@ spec:
       #             targetRevision: 1.17.2
       #             chart: cert-manager
 
-      - id: certmanager
+      - id: certmanager-app
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
