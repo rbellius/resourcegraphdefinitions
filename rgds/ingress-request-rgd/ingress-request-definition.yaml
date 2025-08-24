@@ -67,7 +67,7 @@ spec:
 
       
           tls:
-          - secretName: ${schema.metadata.name}-${schema.metadata.namespace}-${schema.spec.env}-tls
+          - secretName: ${schema.metadata.name}-${schema.spec.env}-tls
             hosts:
               - '${schema.spec.subdomain}.${ingressConfig.data.?domain}'
 
