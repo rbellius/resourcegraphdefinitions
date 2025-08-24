@@ -47,19 +47,19 @@ spec:
 
     status:
       certmanager:
-        resources: ${certmanager.status.operationState.syncResult.resources}
-        healthy: ${certmanager.status.health.status}
-        synced: ${certmanager.status.sync.status}  
+        resources: ${certmanagerApp.status.operationState.syncResult.resources}
+        healthy: ${certmanagerApp.status.health.status}
+        synced: ${certmanagerApp.status.sync.status}  
     
 
 
     # status:
         
     #     clusterIssuerCRDStatus: ${clusterIssuerCrd.status.state == "ACTIVE"} # The status of the ClusterIssuer CRD that cert-manager uses to create ClusterIssuers.
-    #     certManagerStatus: ${certmanager.status.state}
+    #     certManagerStatus: ${certmanagerApp.status.state}
         # ingressConfigGenerator: ${ingressConfigGenerator.status.conditions} # The status of the ingress configmap that will be used by the ingress-request controller to manage ingress requests.
     #   # Fields the controller will inject into instances status.
-    #   certManagerConditions: ${certmanager.status.conditions}
+    #   certManagerConditions: ${certmanagerApp.status.conditions}
 
 #  validation:
 #     # Validating admission policies added to the new API type's CRD
@@ -93,7 +93,7 @@ spec:
       - id: ingressConfigGenerator
         includeWhen:
           - ${schema.spec.ingress.requests} # Only include if the user wants to use ingress requests
-          # - ${certManager.status.conditions} # Ensure cert-manager is ready before creating the configmap
+          # - ${certmanagerApp.status.conditions} # Ensure cert-manager is ready before creating the configmap
         # readyWhen:
         #   - ${ingressConfigGenerator.status.state == "Ready"} # Ensure the configmap is created before using it"
         template:
@@ -193,7 +193,7 @@ spec:
 
       # - id: clusterIssuerCrd
       #   readyWhen:
-      #     - ${certmanager.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} # Ensure cert-manager is ready before deploying the issuer  
+      #     - ${certmanagerApp.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} # Ensure cert-manager is ready before deploying the issuer  
       #   template:
       #     apiVersion: apiextensions.k8s.io/v1
       #     kind: CustomResourceDefinition
@@ -203,7 +203,7 @@ spec:
 
       # - id: certManagerBuiltInIssuer
       #   includeWhen:
-      #     - ${certmanager.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
+      #     - ${certmanagerApp.status.state == "ACTIVE" && clusterIssuerCrds.status.conditions.exists(x, x.type == 'Established' && x.status == "True")} ## Ensure cert-manager is ready before deploying the issuer
       #   # includeWhen:
       #     # - ${schema.spec.dns.providers.builtin.enabled} # Only include if the user wants to use Cloudflare
       #   template:
@@ -216,7 +216,7 @@ spec:
       #         # argocd.argoproj.io/hook: PostSync
       #         # argocd.argoproj.io/sync-wave: "10"
       #         argocd.argoproj.io/instance: cert-manager-${schema.spec.dns.providers.builtin.provider}
-      #         rbellius.com/cert-manager-condition: ${certmanager.status.?state}
+      #         rbellius.com/cert-manager-condition: ${certmanagerApp.status.?state}
       #       finalizers:
       #         - resources-finalizer.argocd.argoproj.io/foreground
 
