@@ -92,54 +92,6 @@ spec:
               app.kubernetes.io/name: '${schema.metadata.name}'
               app.kubernetes.io/part-of: mikrolab
 
-      # - id: argocdApplication
-      #   # includeWhen:
-      #   #   - '${schema.spec.appType == "Application"}'
-      #   # readyWhen:
-      #   #   - '${argocdApplication.status.health.status == "Healthy"}'
-      #   #   - '${argocdApplication.status.sync.status == "Synced"}'
-      #   template:
-      #       apiVersion: argoproj.io/v1alpha1
-      #       kind: Application
-      #       metadata:
-      #         name: '${schema.metadata.name}-application'
-      #         namespace: argocd
-      #         # annotations: 
-      #         #   argocd.argoproj.io/instance: '${schema.metadata.name}'
-      #         #   argocd.argoproj.io/hook: '${schema.spec.application.hook}'
-      #         #   argocd.argoproj.io/sync-wave: '${schema.spec.application.syncWave}'        
-      
-      #         finalizers:
-      #           - resources-finalizer.argocd.argoproj.io/foreground
-
-      #       spec:
-      #         project: ${schema.spec.application.project}
-
-      #         syncPolicy:
-      #           automated:
-      #             selfHeal: ${schema.spec.application.selfHeal}
-      #             prune: true
-      #             allowEmpty: true
-              
-      #           syncOptions:
-      #             - CreateNamespace=${schema.spec.application.sync.createNamespace}
-      #             - ApplyOutOfSyncOnly=${schema.spec.application.sync.applyOutOfSyncOnly}
-      #             - Replace=${schema.spec.application.sync.replace}
-      #             - Validate=${schema.spec.application.sync.validate}
-
-      #         destination:
-      #           server: ${schema.spec.application.destination.server}
-      #           namespace: ${schema.spec.application.destination.namespace}
-
-      #         source:
-      #           repoURL: ${schema.spec.application.source.repoURL}
-      #           chart: ${schema.spec.application.source.chart}
-      #           path: ${schema.spec.application.source.path}
-      #           targetRevision: ${schema.spec.application.source.targetRevision}
-      #           helm:
-      #             values: |
-      #               ${ schema.spec.application.source.values }
-    
 
       - id: argocdApplicationSet
         # includeWhen:
