@@ -17,8 +17,6 @@ spec:
       containerPort: integer | default=80
 
       servicePort: integer | default=80
-      
-
 
       ingress:
         enabled: boolean | default=false
@@ -31,10 +29,13 @@ spec:
       networkStack: string | default="main-network-stack"
 
 
-    # status:
-    #   # Fields the controller will inject into instances status.
-    #   deploymentConditions: ${deployment.status.conditions}
-    #   availableReplicas: ${deployment.status.availableReplicas}
+
+    status:
+      # Fields the controller will inject into instances status.
+      deploymentConditions: ${deployment.status.conditions}
+      availableReplicas: ${deployment.status.availableReplicas}
+      serviceEndpoint: ${service.status.loadBalancer.ingress[0].hostname}
+      ingressRequest: ${ingressRequest.status.conditions.type == "Ready" && ingressRequest.status.conditions.status == "True"}
 
   # Define the resources this API will manage.
   resources:
@@ -90,22 +91,49 @@ spec:
               port: ${schema.spec.servicePort}
               targetPort: ${deployment.spec.template.spec.containers[0].ports[0].containerPort}
 
-    # - id: ingressRequest
+    - id: ingressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: ${schema.metadata.name}-ingress
+            namespace: ${schema.metadata.namespace}
+            annotations:
+              argocd.argoproj.io/instance: ${schema.metadata.name}        
+
+          spec:
+
+            env: ${schema.spec.env}
+            subdomain: ${schema.spec.ingress.subdomain}
+            service:
+              name: ${service.metadata.name} # Use the service name
+
+    # - id: webappRGD
     #   template:
-    #       apiVersion: kro.run/v1alpha1
-    #       kind: IngressRequest
-    #       metadata:
-    #         name: ${schema.metadata.name}-ingress
-    #         namespace: ${schema.metadata.namespace}
-    #         annotations:
-    #           argocd.argoproj.io/instance: ${schema.metadata.name}        
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: ResourceGraphDefinition
+    #     metadata:
+    #       name: web-application
+    #     spec:
+    #       schema:
+    #         apiVersion: v1alpha1
+    #         kind: WebApplicationExample
+    #         spec:
+    #           # Basic types
+    #           name: string | required=true description="My Name"
+    #           replicas: integer | default=1 minimum=1 maximum=100
+    #           image: string | required=true
 
-    #       spec:
+    #           # Structured type
+    #           ingress:
+    #             enabled: boolean | default=false
+    #             host: string | default="example.com"
+    #             path: string | default="/"
 
-    #         env: ${schema.spec.env}
-    #         subdomain: ${schema.spec.ingress.subdomain}
-    #         service:
-    #           name: ${service.metadata.name} # Use the service name
+    #           # Array type
+    #           ports: "[]integer"
+
+
 
 
     # - id: ingress
