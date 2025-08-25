@@ -34,7 +34,7 @@ spec:
       # Fields the controller will inject into instances status.
       deploymentConditions: ${deployment.status.conditions}
       availableReplicas: ${deployment.status.availableReplicas}
-      serviceEndpoint: ${service.status.loadBalancer.ingress[0].hostname}
+      # serviceEndpoint: ${service.status.loadBalancer.ingress[0].hostname}
       ingressRequest: ${ingressRequest.status.conditions}
 
   # Define the resources this API will manage.
