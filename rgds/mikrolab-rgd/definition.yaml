@@ -29,10 +29,11 @@ spec:
         domain: string  
         email: string
 
+  
     # status:
 
       # certmanager:
-      #   resources: ${certManagerRGDApplication.status.operationState.syncResult.resources}
+      #   resources: ${certManagerBundle.status.operationState.syncResult.resources}
       #   healthy: ${certManagerRGDApplication.status.health.status}
       #   synced: ${certManagerRGDApplication.status.sync.status}  
 
@@ -44,6 +45,7 @@ spec:
         kind: Namespace
         metadata:
           name: cert-manager
+
 
     - id: certManagerBundle
       includeWhen:
@@ -80,7 +82,6 @@ spec:
                   provider: ${schema.spec.certmanager.provider}
                   domain: ${schema.spec.certmanager.domain}
 
-
   
     - id: argocdIngressRequest
       template:
@@ -96,119 +97,3 @@ spec:
             subdomain: argocd
             service:
               name: argocd-server
-
-      
-  
-    # - id: certManagerApplication
-    #   readyWhen:
-    #     # - ${certManagerRGD.status.sync.statu/"}
-    #     - ${certManagerApplication.status.health.status == "Healthy"}
-    #   template:
-    #       apiVersion: argoproj.io/v1alpha1
-    #       kind: Application
-    #       metadata:
-    #         name: cert-manager
-    #         namespace: argocd
-    #         annotations:
-    #           argocd.argoproj.io/instance: cert-manager-bundle
-    #           # argocd.argoproj.io/hook: PreSync
-    #           # argocd.argoproj.io/sync-wave: "-10"              
-    
-    #         finalizers:
-    #           - resources-finalizer.argocd.argoproj.io/foreground
-
-
-    # - id: certManagerRGDApplication
-    #   readyWhen:
-    #     - ${certManagerRGDApplication.status.health.status == "Healthy"}
-    #   template:
-    #     apiVersion: argoproj.io/v1alpha1
-    #     kind: Application
-    #     metadata:
-    #       name: cert-manager-rgd-application
-    #       namespace: argocd
-    #       annotations:
-    #         # argocd.argoproj.io/sync-wave: ""
-    #         argocd.argoproj.io/hook: PreSync
-
-            
-    #       finalizers:
-    #         # The default behaviour is foreground cascading deletion
-    #         # - resources-finalizer.argocd.argoproj.io
-    #         # Alternatively, you can use background cascading deletion
-    #         - resources-finalizer.argocd.argoproj.io/background
-
-    #     spec:
-    #       project: default
-
-    #       syncPolicy:
-    #         automated:
-    #           selfHeal: true
-    #           prune: true
-    #           # allowEmpty: true
-          
-    #         syncOptions:
-    #           - CreateNamespace=true
-    #           - Replace=true
-
-    #       destination:
-    #         server: https://kubernetes.default.svc
-    #         namespace: cert-manager
-
-    #       source:
-    #         repoURL: git@github.com:rbellius/resourcegraphdefinitions.git
-    #         path: rgds/cert-manager-bundle-rgd
-    #         targetRevision: main
-
-    #       spec:
-    #         project: default
-    #         syncPolicy:
-    #           automated:
-    #             selfHeal: true
-            
-    #           syncOptions:
-    #             - CreateNamespace=true
-    #             # - ApplyOutOfSyncOnly=true
-
-    #         destination:
-    #           server: https://kubernetes.default.svc
-    #           namespace: cert-manager
-
-    #         source:
-    #           repoURL: https://charts.jetstack.io
-    #           chart: cert-manager  
-    #           targetRevision: 1.17.2
-    #           helm:
-    #             valuesObject:
-    #               crds:
-    #                 enabled: true
-    #                 keep: false
-                    
-    #               enableCertificateOwnerRef: true
-    #               extraArgs:
-    #                 - --dns01-recursive-nameservers-only
-    #                 - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
-
-
-
-    # - id: SomeChartArgofile
-    #   template:
-    #     apiVersion: kro.run/v1alpha1
-    #     kind: Argofile
-    #     metadata:
-    #       name: chart-name-argofile
-    #     spec:
-    #       applications:
-    #         - name: chart-name
-    #           enabled: true  
-    #           hook: PreSync
-    #           syncWave: 0
-    #           destination:
-    #             namespace: your-namespace
-    #           source:
-    #             repoURL: git@github.com:user/repo.git
-    #             targetRevision: main
-    #             path: path/to/yaml # Use chart: for actual helm charts
-    #           values: | 
-    #             foo:
-    #               bar: true
