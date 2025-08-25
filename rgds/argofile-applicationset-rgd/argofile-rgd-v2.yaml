@@ -1,7 +1,7 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: argofile-applicationset-rgd
+  name: argofile-applicationset-rgd-local
   labels:
     app.kubernetes.io/name: mikrolab-applicationset
     app.kubernetes.io/instance: mikrolab-applicationset
@@ -148,7 +148,7 @@ spec:
           apiVersion: argoproj.io/v1alpha1
           kind: ApplicationSet
           metadata:
-            name: '${schema.metadata.name}-applicationset-kro'
+            name: '${schema.metadata.name}'
             namespace: argocd
           spec: 
 
@@ -229,14 +229,22 @@ spec:
                     values: {{ .source.values | quote | nindent 12  }}
                 {{- end }}
 
+                {{- if .source.directory.recurse }}
+                  directory:
+                    recurse: {{ .source.directory.recurse }}
 
+                    {{- if hasKey .source.directory "include"}}
+                      {{- if .source.directory.include  }}
+                    include: {{ .source.directory.include | quote | nindent 12}}
+                      {{- end }}
+                    {{- end }}
 
-# {{- if .source.directory.recurse }}
-#   directory:
-#     recurse: {{ .source.directory.recurse }}
-#     include: {{ .source.directory.include | quote }}
-#     exclude: {{ .source.directory.exclude | quote }}
-# {{- end }}
+                    {{- if hasKey .source.directory "exclude"}}
+                      {{- if .source.directory.exclude  }}
+                    exclude: {{ .source.directory.exclude | quote | nindent 12}}
+                      {{- end }}
+                    {{- end}}
+                {{- end }}
 
 
 
