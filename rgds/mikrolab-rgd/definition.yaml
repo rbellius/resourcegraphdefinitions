@@ -174,25 +174,23 @@ spec:
     #                 - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
 
 
- 
-  # - id: argocdIngressRequest
-  #   template:
-  #       apiVersion: kro.run/v1alpha1
-  #       kind: IngressRequest
-  #       metadata:
-  #         name: argocd
-  #         namespace: argocd
-  #         annotations:
-  #           argocd.argoproj.io/instance: argocd-ingress          
+  
+    - id: argocdIngressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: argocd
+            namespace: argocd
+            annotations:
+              argocd.argoproj.io/instance: argocd-ingress          
+          spec:
+            env: ${schema.spec.env}
+            subdomain: argocd
+            service:
+              name: argocd-server
 
-  #       spec:
-
-  #         env: ${schema.spec.env}
-  #         subdomain: argocdtest
-  #         service:
-  #           name: argocd-server
-
-    
+      
 
 
     # - id: SomeChartArgofile
