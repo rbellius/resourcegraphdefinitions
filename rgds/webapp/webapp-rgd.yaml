@@ -21,7 +21,6 @@ spec:
       ingress:
         enabled: boolean | default=false
         class: string | default="traefik"
-        domain: string | default="example.com"
         subdomain: string | default="app"
         env: string | default="staging"
 
