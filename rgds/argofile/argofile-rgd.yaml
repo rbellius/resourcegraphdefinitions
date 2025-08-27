@@ -24,11 +24,11 @@ spec:
         name: string | required=true
         project: string | default="default"
 
-        selfHeal: boolean | default=true
-        syncWave: integer | default=0
         hook: string | default="Sync" enum="PreSync,Sync,Skip,PostSync,SyncFail,PostDelete"
+        syncWave: integer | default=0
 
         sync:
+          selfHeal: boolean | default=true
           replace: boolean | default=false
           validate: boolean | default=true
           pruneLast: boolean | default=true
@@ -44,33 +44,36 @@ spec:
 
         source:
           repoURL: string | required=true
-          targetRevision: string | default="main" required=true
-          path: string | default=""
-          chart: string | default=""
-          values: string | default=""
+          targetRevision: string | required=true
+          path: string
+          chart: string
+          values: string
           # parameters: '[]Parameter'
 
           # To match multiple patterns, wrap the patterns in {} and separate them with commas. For example: '{*.yml,*.yaml}'
           directory:
-            recurse: boolean | default=false required=false
-            exclude: string | required=false
-            include: string | required=false
-      
+            recurse: boolean | required=false default=false
+            exclude: string | required=false  # enforce a regex pattern for {*.yml,*.yaml}
+            include: string | required=false # enforce a regex pattern for {*.yml,*.yaml}
+    
+
+    #validation:
+      # add validation for path || chart )
+      # add validation for directory (path works with dir, but does chart?)
+
     status:
       errorsOccured: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ErrorOccurred" && app.status == "True")}
       resourcesUpToDate: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ResourcesUpToDate" && app.status == "True")}
       parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
     spec:
-    
-      applications: '[]Application'
-      # application: Application
-
       goTemplate: boolean | default=false
       goTemplateOptions: string | default="missingkey=error"
 
       syncPolicy:
         applicationsSync: string | default="create-only" enum="create-only,create-update,create-delete"
         preserveResourcesOnDelete: boolean | default=false
+
+      applications: '[]Application'
 
   resources:
       - id: createNamespace
@@ -127,11 +130,12 @@ spec:
                 finalizers:
                 - resources-finalizer.argocd.argoproj.io
                 
-                labels:
+                # labels:
                   # app.kubernetes.io/part-of:  
 
               spec:
 
+                # most of this will move into the templatePatch
                 project:                        '{{ .project }}'
 
                 syncPolicy:
@@ -142,9 +146,9 @@ spec:
                     
                   syncOptions:
                     - 'CreateNamespace={{ .sync.createNamespace }}'
-                    - ApplyOutOfSyncOnly={{ .sync.applyOutOfSyncOnly }}
-                    - Replace={{ .sync.replace }}
-                    - Validate={{ .sync.validate }}
+                    - 'ApplyOutOfSyncOnly={{ .sync.applyOutOfSyncOnly }}'
+                    - 'Replace={{ .sync.replace }}'
+                    - 'Validate={{ .sync.validate }}'
 
                 destination:
                   server:                       '{{ .destination.server }}'
@@ -159,34 +163,33 @@ spec:
               spec:
                 source:
 
-                {{- if .source.chart }}
+                {{- if hasKey .source "chart" }}
                   chart: {{ .source.chart }}
                 {{- end }}
 
-                {{- if .source.path }}
+                {{- if hasKey .source "path" }}
                   path:  {{ .source.path }}
                 {{- end }}
 
-                {{- if .source.values }}
+                {{- if hasKey .source "values" }}
                   helm:
                     values: {{ .source.values | quote | nindent 12  }}
                 {{- end }}
 
-                {{- if .source.directory.recurse }}
+                {{- if hasKey .source "directory" }}
                   directory:
+
+                  {{- if hasKey .source.directory "recurse" }}
                     recurse: {{ .source.directory.recurse }}
+                  {{- end }}
 
-                    {{- if hasKey .source.directory "include"}}
-                      {{- if .source.directory.include  }}
+                  {{- if hasKey .source.directory "include"}}
                     include: {{ .source.directory.include | quote | nindent 12}}
-                      {{- end }}
-                    {{- end }}
+                  {{- end }}
 
-                    {{- if hasKey .source.directory "exclude"}}
-                      {{- if .source.directory.exclude  }}
+                  {{- if hasKey .source.directory "exclude"}}
                     exclude: {{ .source.directory.exclude | quote | nindent 12}}
-                      {{- end }}
-                    {{- end}}
+                  {{- end}}
                 {{- end }}
 
 
