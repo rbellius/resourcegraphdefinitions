@@ -57,20 +57,13 @@ spec:
             exclude: string | required=false
             include: string | required=false
       
-    # status:
-      # (status.conditions[?type == 'synced']):
-      #   - status: 'True'
-
-    # #   ${self.status.conditions.exists(c, c.type == "Ready" && c.status == "True")}  
-    #   errorsOccured: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ErrorOccurred" && app.status == "True")}
-    #   resourcesUpToDate: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ResourcesUpToDate" && app.status == "True")}
-    #   parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
-
-      # healthy: ${argocdApplication.status.health.status}
-      # synced: ${argocdApplication.status.sync.status}
+    status:
+      errorsOccured: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ErrorOccurred" && app.status == "True")}
+      resourcesUpToDate: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ResourcesUpToDate" && app.status == "True")}
+      parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
     spec:
     
-      appType: AppType | default="ApplicationSet" enum="Application,ApplicationSet"
+      appType: string | enum="ApplicationSet" default="ApplicationSet"
       applications: '[]Application'
       # application: Application
 
