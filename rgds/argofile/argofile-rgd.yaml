@@ -13,7 +13,7 @@ spec:
     kind: Argofile
 
     types:
-      AppType: string | enum="Application,ApplicationSet" default="Application"
+
       Parameter:
         name: string | required=true
         value: string | required=true
@@ -38,7 +38,6 @@ spec:
           skipDryRunOnMissingResources: boolean | default=false
           prunePropagationPolicy: string | default="foreground" enum="foreground,background,orphan"
   
-
         destination:
           server: string | default="https://kubernetes.default.svc"
           namespace: string | default="" required=true
@@ -63,7 +62,6 @@ spec:
       parametersGenerated: ${argocdApplicationSet.status.conditions.exists(app, app.type == "ParametersGenerated" && app.status == "True")}
     spec:
     
-      appType: string | enum="ApplicationSet" default="ApplicationSet"
       applications: '[]Application'
       # application: Application
 
