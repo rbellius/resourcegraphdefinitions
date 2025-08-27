@@ -19,21 +19,21 @@ spec:
         value: string | required=true
 
       Application:
-        enabled: boolean | default=false required=true
+        enabled: boolean | default=false required=true 
 
         name: string | required=true
         project: string | default="default"
 
         selfHeal: boolean | default=true
         syncWave: integer | default=0
-        hook: string | default="Sync"
+        hook: string | default="Sync" enum="PreSync,Sync,Skip,PostSync,SyncFail,PostDelete"
 
         sync:
-          createNamespace: boolean | default=true
-          applyOutOfSyncOnly: boolean | default=false
           replace: boolean | default=false
           validate: boolean | default=true
           pruneLast: boolean | default=true
+          createNamespace: boolean | default=true
+          applyOutOfSyncOnly: boolean | default=false
           respectIgnoreDifferences: boolean | default=true
           skipDryRunOnMissingResources: boolean | default=false
           prunePropagationPolicy: string | default="foreground" enum="foreground,background,orphan"
