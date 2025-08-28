@@ -1,0 +1,78 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: mikrolab
+  namespace: mikrolab
+  annotations:
+    argocd.argoproj.io/instance: mikrolab
+  labels:
+    app.kubernetes.io/name: mikrolab
+    app.kubernetes.io/instance: mikrolab
+    app.kubernetes.io/component: infrastructure
+    app.kubernetes.io/part-of: mikrolab
+
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: MikroLab
+    spec:
+   
+      env: string | default="staging" enum="staging,production"
+
+      ingress:
+        class: string | default="traefik" enum="traefik"
+ 
+      certmanager:
+        enabled: boolean | default=true
+        provider: string | default="duckdns" enum="duckdns,cloudflare"
+        domain: string  
+        email: string  
+
+  resources:
+
+    - id: createNamespace
+      template:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: cert-manager
+
+
+    - id: certManagerBundle
+      includeWhen:
+        - ${schema.spec.certmanager.enabled}
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: CertManagerBundle
+          metadata:
+            name: cert-manager-bundle
+            namespace: cert-manager
+            annotations:
+              argocd.argoproj.io/instance: cert-manager-bundle
+          spec:
+            env: ${schema.spec.env}
+            ingress:
+              requests: true
+
+            tls:
+              enabled: true
+              email: ${schema.spec.certmanager.email}
+              provider: ${schema.spec.certmanager.provider}
+              domain: ${schema.spec.certmanager.domain}
+              dynamic: ${schema.spec.certmanager.provider == true}
+
+  
+    - id: argocdIngressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: argocd
+            namespace: argocd
+            annotations:
+              argocd.argoproj.io/instance: argocd-ingress          
+          spec:
+            env: ${schema.spec.env}
+            subdomain: argocd
+            service:
+              name: argocd-server

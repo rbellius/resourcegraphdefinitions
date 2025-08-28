@@ -1,0 +1,70 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: ingress-request-definition
+  annotations:
+    argocd.argoproj.io/instance: ingress-request-definition
+  labels:
+    app.kubernetes.io/name: ingress-request
+    app.kubernetes.io/instance: ingress-request
+    app.kubernetes.io/component: rgd
+    app.kubernetes.io/part-of: mikrolab
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: IngressRequest
+    spec:
+   
+      env: string | default="staging" enum="staging,production"
+      subdomain: string | required=true
+
+      service:
+        name: string | required=true
+        port: integer | default=80
+
+  resources:
+    - id: ingressConfig
+      externalRef:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ingress-request-configmap
+          namespace: cert-manager
+
+
+    - id: ingressGenerator
+      template:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: ${schema.metadata.name}
+          namespace: ${schema.metadata.namespace}
+          annotations:
+            cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
+            argocd.argoproj.io/instance: ${schema.metadata.name}-${schema.metadata.namespace}-ingress-request
+            
+          labels:
+            app.kubernetes.io/instance: ${schema.metadata.name}
+            app.kubernetes.io/name: ingress
+            app.kubernetes.io/component: ingress
+            app.kubernetes.io/part-of: ${schema.metadata.namespace}
+
+        spec: 
+          ingressClassName: ${ingressConfig.data.?ingressClass}
+
+          tls:
+          - secretName: ${schema.metadata.name}-${schema.spec.env}-tls
+            hosts:
+              - '${schema.spec.subdomain}.${ingressConfig.data.?domain}'
+
+          rules:
+          - host: '${schema.spec.subdomain}.${ingressConfig.data.?domain}'
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: ${schema.spec.service.name}
+                    port:
+                      number: ${schema.spec.service.port}

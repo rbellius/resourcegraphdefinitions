@@ -1,0 +1,138 @@
+
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: webapp-definition
+  namespace: webapp
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: WebApplication
+    spec:
+
+      name: string
+
+      containerImage: string | default="nginx"
+      containerPort: integer | default=80
+      servicePort: integer | default=80
+
+      # container:
+      #   image: string | default="nginx"
+      #   port: integer | default=80
+
+      # service:
+      #   name: string | default="${schema.metadata.name}-service"
+      #   port: integer | default=80
+
+      ingress:
+        subdomain: string 
+        enabled: boolean | default=false
+        class: string | default="traefik"
+        env: string | default="staging"
+
+      env: string | default="staging" enum="staging,production"
+
+    status:
+      deploymentConditions: ${deployment.status.conditions}
+      availableReplicas: ${deployment.status.availableReplicas}
+      ingressRequest: ${ingressRequest.status.conditions}
+
+  resources:
+    - id: deployment
+      template:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ${schema.metadata.name} 
+          namespace: ${schema.metadata.namespace} 
+
+          labels:
+              app.kubernetes.io/instance: webapp-${schema.metadata.name}-deployment
+              app.kubernetes.io/name: ${schema.metadata.name}
+              app.kubernetes.io/component: deployment
+              app.kubernetes.io/part-of: ${schema.metadata.namespace}
+              app.kubernetes.io/managed-by: kro
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: ${schema.metadata.name} 
+          template:
+            metadata:
+              labels:
+                app: ${schema.metadata.name}
+            spec:
+              containers:
+                - name: ${schema.metadata.name}
+                  image: ${schema.spec.containerImage}
+                  ports:
+                    - containerPort: ${schema.spec.containerPort}
+
+    - id: service
+      template:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: ${schema.metadata.name}-service
+          namespace: ${schema.metadata.namespace}
+
+          labels:
+              app.kubernetes.io/instance: webapp-${schema.metadata.name}-service
+              app.kubernetes.io/name: ${schema.metadata.name}
+              app.kubernetes.io/component: service
+              app.kubernetes.io/part-of: ${schema.metadata.namespace}
+              app.kubernetes.io/managed-by: kro
+
+        spec:
+          selector: ${deployment.spec.selector.matchLabels}
+          ports:
+            - protocol: TCP
+              port: ${schema.spec.servicePort}
+              targetPort: ${deployment.spec.template.spec.containers[0].ports[0].containerPort}
+
+    - id: ingressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: ${schema.metadata.name}
+            namespace: ${schema.metadata.namespace}
+            annotations:
+              argocd.argoproj.io/instance: ${schema.metadata.name}        
+
+          spec:
+
+            env: ${schema.spec.env}
+            subdomain: ${schema.spec.ingress.subdomain}
+            service:
+              name: ${service.metadata.name} # Use the service name
+
+    # - id: webappRGD
+    #   template:
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: ResourceGraphDefinition
+    #     metadata:
+    #       name: web-application
+    #     spec:
+    #       schema:
+    #         apiVersion: v1alpha1
+    #         kind: WebApplicationExample
+    #         spec:
+    #           # Basic types
+    #           name: string | required=true description="My Name"
+    #           replicas: integer | default=1 minimum=1 maximum=100
+    #           image: string | required=true
+
+    #           # Structured type
+    #           ingress:
+    #             enabled: boolean | default=false
+    #             host: string | default="example.com"
+    #             path: string | default="/"
+
+    #           # Array type
+    #           ports: "[]integer"
+
+
+
+
+  
