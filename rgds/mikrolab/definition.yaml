@@ -10,7 +10,6 @@ metadata:
     app.kubernetes.io/instance: mikrolab
     app.kubernetes.io/component: infrastructure
     app.kubernetes.io/part-of: mikrolab
-    # app.kubernetes.io/managed-by: argocd ## will this be tracked my argocd?
 
 spec:
   schema:
@@ -62,25 +61,32 @@ spec:
             env: ${schema.spec.env}
             ingress:
               requests: true
-            dns:
-              providers: 
-                duckdns:
-                  enabled: ${schema.spec.certmanager.provider == "duckdns"}
-                  email: ${schema.spec.certmanager.email} 
-                  domain: ${schema.spec.certmanager.domain}
-                  dynamic: true
-                # cloudflare:
-                #   enabled: false
-                #   email: eddie.moya@gmail.com
-                #   domain: cloudbreaker.me
-                builtin:
-                  enabled: ${schema.spec.certmanager.provider == "cloudflare"}
-                  provider: cloudflare
-                  email: ${schema.spec.certmanager.email}
-                  domain: ${schema.spec.certmanager.domain}
-                default:
-                  provider: ${schema.spec.certmanager.provider}
-                  domain: ${schema.spec.certmanager.domain}
+
+            tls:
+              enabled: true
+              email: ${schema.spec.certmanager.email}
+              provider: ${schema.spec.certmanager.provider}
+              domain: ${schema.spec.certmanager.domain}
+              dynamic: ${schema.spec.certmanager.dynaimc == true}
+            # dns:
+              # providers: 
+              #   duckdns:
+              #     enabled: ${schema.spec.certmanager.provider == "duckdns"}
+              #     email: ${schema.spec.certmanager.email} 
+              #     domain: ${schema.spec.certmanager.domain}
+              #     dynamic: true
+              #   # cloudflare:
+              #   #   enabled: false
+              #   #   email: eddie.moya@gmail.com
+              #   #   domain: cloudbreaker.me
+              #   builtin:
+              #     enabled: ${schema.spec.certmanager.provider == "cloudflare"}
+              #     provider: cloudflare
+              #     email: ${schema.spec.certmanager.email}
+              #     domain: ${schema.spec.certmanager.domain}
+              #   default:
+              #     provider: ${schema.spec.certmanager.provider}
+              #     domain: ${schema.spec.certmanager.domain}
 
   
     - id: argocdIngressRequest
