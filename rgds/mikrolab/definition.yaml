@@ -67,7 +67,7 @@ spec:
               email: ${schema.spec.certmanager.email}
               provider: ${schema.spec.certmanager.provider}
               domain: ${schema.spec.certmanager.domain}
-              dynamic: ${schema.spec.certmanager.dynaimc == true}
+              dynamic: ${schema.spec.certmanager.provider == true}
             # dns:
               # providers: 
               #   duckdns:
