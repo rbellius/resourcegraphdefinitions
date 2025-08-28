@@ -26,15 +26,7 @@ spec:
         enabled: boolean | default=true
         provider: string | default="duckdns" enum="duckdns,cloudflare"
         domain: string  
-        email: string
-
-  
-    # status:
-
-      # certmanager:
-      #   resources: ${certManagerBundle.status.operationState.syncResult.resources}
-      #   healthy: ${certManagerRGDApplication.status.health.status}
-      #   synced: ${certManagerRGDApplication.status.sync.status}  
+        email: string  
 
   resources:
 
@@ -68,25 +60,6 @@ spec:
               provider: ${schema.spec.certmanager.provider}
               domain: ${schema.spec.certmanager.domain}
               dynamic: ${schema.spec.certmanager.provider == true}
-            # dns:
-              # providers: 
-              #   duckdns:
-              #     enabled: ${schema.spec.certmanager.provider == "duckdns"}
-              #     email: ${schema.spec.certmanager.email} 
-              #     domain: ${schema.spec.certmanager.domain}
-              #     dynamic: true
-              #   # cloudflare:
-              #   #   enabled: false
-              #   #   email: eddie.moya@gmail.com
-              #   #   domain: cloudbreaker.me
-              #   builtin:
-              #     enabled: ${schema.spec.certmanager.provider == "cloudflare"}
-              #     provider: cloudflare
-              #     email: ${schema.spec.certmanager.email}
-              #     domain: ${schema.spec.certmanager.domain}
-              #   default:
-              #     provider: ${schema.spec.certmanager.provider}
-              #     domain: ${schema.spec.certmanager.domain}
 
   
     - id: argocdIngressRequest
