@@ -10,41 +10,41 @@ spec:
     kind: WebApplication
     spec:
 
-      # Spec fields that users can provide.
       name: string
 
       containerImage: string | default="nginx"
       containerPort: integer | default=80
-
       servicePort: integer | default=80
 
+      # container:
+      #   image: string | default="nginx"
+      #   port: integer | default=80
+
+      # service:
+      #   name: string | default="${schema.metadata.name}-service"
+      #   port: integer | default=80
+
       ingress:
+        subdomain: string 
         enabled: boolean | default=false
         class: string | default="traefik"
-        subdomain: string | default="app"
         env: string | default="staging"
 
       env: string | default="staging" enum="staging,production"
-      networkStack: string | default="main-network-stack"
-
-
 
     status:
-      # Fields the controller will inject into instances status.
       deploymentConditions: ${deployment.status.conditions}
       availableReplicas: ${deployment.status.availableReplicas}
-      # serviceEndpoint: ${service.status.loadBalancer.ingress[0].hostname}
       ingressRequest: ${ingressRequest.status.conditions}
 
-  # Define the resources this API will manage.
   resources:
     - id: deployment
       template:
         apiVersion: apps/v1
         kind: Deployment
         metadata:
-          name: ${schema.metadata.name} # Use the name provided by user
-          namespace: ${schema.metadata.namespace} # Use the namespace provided by user
+          name: ${schema.metadata.name} 
+          namespace: ${schema.metadata.namespace} 
 
           labels:
               app.kubernetes.io/instance: webapp-${schema.metadata.name}-deployment
@@ -56,7 +56,7 @@ spec:
           replicas: 1
           selector:
             matchLabels:
-              app: ${schema.metadata.name} # Use the name provided by user
+              app: ${schema.metadata.name} 
           template:
             metadata:
               labels:
@@ -64,9 +64,9 @@ spec:
             spec:
               containers:
                 - name: ${schema.metadata.name}
-                  image: ${schema.spec.containerImage} # Use the image provided by user
+                  image: ${schema.spec.containerImage}
                   ports:
-                    - containerPort: ${schema.spec.containerPort} # Use the port provided by user
+                    - containerPort: ${schema.spec.containerPort}
 
     - id: service
       template:
@@ -84,7 +84,7 @@ spec:
               app.kubernetes.io/managed-by: kro
 
         spec:
-          selector: ${deployment.spec.selector.matchLabels} # Use the deployment selector
+          selector: ${deployment.spec.selector.matchLabels}
           ports:
             - protocol: TCP
               port: ${schema.spec.servicePort}
