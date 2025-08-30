@@ -76,3 +76,20 @@ spec:
             subdomain: argocd
             service:
               name: argocd-server
+
+  
+    - id: giteaIngressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: gitea
+            namespace: gitea
+            annotations:
+              argocd.argoproj.io/instance: gitea         
+          spec:
+            env: ${schema.spec.env}
+            subdomain: git
+            service:
+              name: gitea-http
+              port: 3000
