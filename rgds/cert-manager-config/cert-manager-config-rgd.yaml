@@ -155,7 +155,7 @@ spec:
                 namespace: cert-manager
 
               source:
-                repoURL: git@github.com:rbellius/charts.git
+                repoURL: https://codeberg.org/eddiemoya/charts.git
                 path: 'cert-manager-${schema.spec.tls.provider}'
                 targetRevision: main
                 helm:
@@ -240,7 +240,8 @@ spec:
 
       - id: duckdnsddns 
         includeWhen:
-          - ${schema.spec.tls.enabled} 
+          - ${schema.spec.tls.enabled}
+          - ${schema.spec.tls.provider == "duckdns"}  
           - ${schema.spec.tls.dynamic} 
         template:
           apiVersion: argoproj.io/v1alpha1
@@ -277,7 +278,7 @@ spec:
               namespace: cert-manager
 
             source:
-              repoURL: git@github.com:rbellius/charts.git
+              repoURL: https://codeberg.org/eddiemoya/charts.git
               path: duckdns-ddns
               targetRevision: main
               helm:
