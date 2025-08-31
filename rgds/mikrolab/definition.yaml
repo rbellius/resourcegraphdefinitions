@@ -59,7 +59,7 @@ spec:
               email: ${schema.spec.certmanager.email}
               provider: ${schema.spec.certmanager.provider}
               domain: ${schema.spec.certmanager.domain}
-              dynamic: ${schema.spec.certmanager.provider == true}
+              dynamic: ${schema.spec.certmanager.provider == "duckdns"}
 
   
     - id: argocdIngressRequest

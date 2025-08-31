@@ -31,8 +31,19 @@ spec:
           name: ingress-request-configmap
           namespace: cert-manager
 
+    - id: service
+      externalRef:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: ${schema.spec.service.name}
+          namespace: ${schema.metadata.namespace}
+
 
     - id: ingressGenerator
+    # Ensure service exists before generating
+      # readyWhen:
+      #  - ${service.status.condition.status}
       template:
         apiVersion: networking.k8s.io/v1
         kind: Ingress
@@ -68,3 +79,6 @@ spec:
                     name: ${schema.spec.service.name}
                     port:
                       number: ${schema.spec.service.port}
+
+
+              
