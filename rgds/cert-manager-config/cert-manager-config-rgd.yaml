@@ -35,48 +35,23 @@ spec:
 
     status:
       certmanager:
-        resources: ${certmanagerApp.status.operationState.syncResult.resources}
-        healthy: ${certmanagerApp.status.health.status}
-        synced: ${certmanagerApp.status.sync.status}  
+        resources: ${certmanagerChart.status.operationState.syncResult.resources}
+        healthy: ${certmanagerChart.status.health.status}
+        synced: ${certmanagerChart.status.sync.status}  
     
   resources:
 
-      - id: ingressConfigGenerator
-        includeWhen:
-          - ${schema.spec.ingress.requests}
-        template:
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: ingress-request-configmap
-            namespace: cert-manager
-            annotations:
-         
-              argocd.argoproj.io/instance: cert-manager-bundle
-              # argocd.argoproj.io/hook: PreSync
-            finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
-              # argocd.argoproj.io/sync-wave: "0"
-            labels:
-              app.kubernetes.io/instance:   cert-manager-bundle
-              app.kubernetes.io/name:       ingress-request-configmap
-              app.kubernetes.io/part-of:    mikrolab
 
-          data:
-      
-            ingressClass:   ${schema.spec.ingress.class}
-            domain:         ${schema.spec.tls.domain}
-            clusterIssuer:  ${schema.spec.tls.provider}-letsencrypt-${schema.spec.env}
-
-      - id: certmanagerApp
+      - id: certmanagerChart
         template:
             apiVersion: argoproj.io/v1alpha1
             kind: Application
             metadata:
               name: cert-manager
               namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: cert-manager-bundle
+            annotations:
+              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+              # argocd.argoproj.io/instance: cert-manager-bundle
                 # argocd.argoproj.io/hook: PreSync
                 # argocd.argoproj.io/sync-wave: "-10"              
       
@@ -114,6 +89,31 @@ spec:
                       - --dns01-recursive-nameservers-only
                       - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         
+      - id: ingressConfigGenerator
+        includeWhen:
+          - ${schema.spec.ingress.requests}
+        template:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: ingress-request-configmap
+            namespace: cert-manager
+            annotations:
+              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+              # argocd.argoproj.io/hook: PreSync
+            finalizers:
+                - resources-finalizer.argocd.argoproj.io/foreground
+              # argocd.argoproj.io/sync-wave: "0"
+            labels:
+              app.kubernetes.io/instance:   cert-manager-bundle
+              app.kubernetes.io/name:       ingress-request-configmap
+              app.kubernetes.io/part-of:    mikrolab
+
+          data:
+      
+            ingressClass:   ${schema.spec.ingress.class}
+            domain:         ${schema.spec.tls.domain}
+            clusterIssuer:  ${schema.spec.tls.provider}-letsencrypt-${schema.spec.env}
         
       - id: certManagerBuiltInIssuer
         includeWhen:
@@ -125,8 +125,9 @@ spec:
             metadata:
               name: 'cert-manager-${schema.spec.tls.provider}'
               namespace: argocd
-              annotations:
-                argocd.argoproj.io/instance: cert-manager-bundle
+            annotations:
+              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+              # argocd.argoproj.io/instance: cert-manager-bundle
                 # argocd.argoproj.io/sync-wave: "-10" 
                 # argocd.argoproj.io/hook: "PreSync"             
       
@@ -179,9 +180,10 @@ spec:
             metadata:
               name: cert-manager-duckdns-webhook
               namespace: argocd
-              annotations:
+            annotations:
+              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
                 # argocd.argoproj.io/sync-wave: "0"
-                argocd.argoproj.io/instance: cert-manager-bundle
+              # argocd.argoproj.io/instance: cert-manager-bundle
 
               finalizers:
                 - resources-finalizer.argocd.argoproj.io/foreground
@@ -250,7 +252,8 @@ spec:
             name: duckdns-ddns
             namespace: argocd
             annotations:
-              argocd.argoproj.io/instance: cert-manager-bundle
+              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+              # argocd.argoproj.io/instance: cert-manager-bundle
               argocd.argoproj.io/hook: "PreSync"
               
             finalizers:

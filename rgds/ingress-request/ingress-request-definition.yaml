@@ -24,6 +24,8 @@ spec:
 
   resources:
     - id: ingressConfig
+      readyWhen:
+        - ${ingressConfig.metadata.tcreationTimestamp}
       externalRef:
         apiVersion: v1
         kind: ConfigMap
@@ -31,13 +33,7 @@ spec:
           name: ingress-request-configmap
           namespace: cert-manager
 
-    - id: service
-      externalRef:
-        apiVersion: v1
-        kind: Service
-        metadata:
-          name: ${schema.spec.service.name}
-          namespace: ${schema.metadata.namespace}
+
 
 
     - id: ingressGenerator
@@ -51,6 +47,7 @@ spec:
           name: ${schema.metadata.name}
           namespace: ${schema.metadata.namespace}
           annotations:
+            argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
             cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
             argocd.argoproj.io/instance: ${schema.metadata.name}-${schema.metadata.namespace}-ingress-request
             

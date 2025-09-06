@@ -82,6 +82,8 @@ spec:
           kind: Namespace
           metadata:
             name: '${schema.metadata.name}'
+            # annotations:
+            #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
             labels:
               app.kubernetes.io/name: '${schema.metadata.name}'
               app.kubernetes.io/part-of: mikrolab
@@ -96,6 +98,8 @@ spec:
           metadata:
             name: '${schema.metadata.name}'
             namespace: argocd
+          # annotations:
+          #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
           spec: 
 
             goTemplate: true
