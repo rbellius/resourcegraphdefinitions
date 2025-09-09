@@ -35,7 +35,7 @@ spec:
 
     status:
       certmanager:
-        resources: ${ .status.operationState.syncResult.resources}
+        resources: ${certmanagerChart.status.operationState.syncResult.resources}
         healthy: ${certmanagerChart.status.health.status}
         synced: ${certmanagerChart.status.sync.status}  
     
