@@ -65,21 +65,21 @@ spec:
               dynamic: ${schema.spec.certmanager.provider == "duckdns"}
 
   
-    - id: argocdIngressRequest
-      template:
-          apiVersion: kro.run/v1alpha1
-          kind: IngressRequest
-          metadata:
-            name: argocd
-            namespace: argocd
-            annotations:
-              argocd.argoproj.io/instance: argocd-ingress
-              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
-          spec:
-            env: ${schema.spec.env}
-            subdomain: argocd
-            service:
-              name: argocd-server
+    # - id: argocdIngressRequest
+    #   template:
+    #       apiVersion: kro.run/v1alpha1
+    #       kind: IngressRequest
+    #       metadata:
+    #         name: argocd
+    #         namespace: argocd
+    #         annotations:
+    #           argocd.argoproj.io/instance: argocd-ingress
+    #           # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
+    #       spec:
+    #         env: ${schema.spec.env}
+    #         subdomain: argocd
+    #         service:
+    #           name: argocd-server
 
 
     # - id: homepageIngressRequest
@@ -99,22 +99,22 @@ spec:
     #           name: homepage
     #           port: 3000
 
-    - id: headlampIngressRequest
-      template:
-          apiVersion: kro.run/v1alpha1
-          kind: IngressRequest
-          metadata:
-            name: headlamp
-            namespace: kube-system
-            annotations:
-              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
-              argocd.argoproj.io/instance: headlamp     
-          spec:
-            env: ${schema.spec.env}
-            subdomain: headlamp
-            service:
-              name: headlamp
-              port: 80
+    # - id: headlampIngressRequest
+    #   template:
+    #       apiVersion: kro.run/v1alpha1
+    #       kind: IngressRequest
+    #       metadata:
+    #         name: headlamp
+    #         namespace: kube-system
+    #         annotations:
+    #           # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+    #           argocd.argoproj.io/instance: headlamp     
+    #       spec:
+    #         env: ${schema.spec.env}
+    #         subdomain: headlamp
+    #         service:
+    #           name: headlamp
+    #           port: 80
   
   
     # - id: giteaIngressRequest
