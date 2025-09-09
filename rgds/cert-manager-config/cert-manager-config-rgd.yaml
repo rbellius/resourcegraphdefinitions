@@ -35,7 +35,7 @@ spec:
 
     status:
       certmanager:
-        resources: ${certmanagerChart.status.operationState.syncResult.resources}
+        resources: ${ .status.operationState.syncResult.resources}
         healthy: ${certmanagerChart.status.health.status}
         synced: ${certmanagerChart.status.sync.status}  
     
@@ -49,11 +49,11 @@ spec:
             metadata:
               name: cert-manager
               namespace: argocd
-            annotations:
-            #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
-              argocd.argoproj.io/instance: cert-manager-bundle
-                # argocd.argoproj.io/hook: PreSync
-                # argocd.argoproj.io/sync-wave: "-10"              
+              annotations:
+              #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+                argocd.argoproj.io/instance: cert-manager-bundle
+                  # argocd.argoproj.io/hook: PreSync
+                  # argocd.argoproj.io/sync-wave: "-10"              
       
             finalizers:
               - resources-finalizer.argocd.argoproj.io/foreground
