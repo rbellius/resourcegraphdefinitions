@@ -98,8 +98,8 @@ spec:
           metadata:
             name: ingress-request-configmap
             namespace: cert-manager
-            annotations:
-              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+            # annotations:
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
               # argocd.argoproj.io/hook: PreSync
             finalizers:
                 - resources-finalizer.argocd.argoproj.io/foreground
@@ -125,8 +125,8 @@ spec:
             metadata:
               name: 'cert-manager-${schema.spec.tls.provider}'
               namespace: argocd
-            annotations:
-              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+            # annotations:
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
               # argocd.argoproj.io/instance: cert-manager-bundle
                 # argocd.argoproj.io/sync-wave: "-10" 
                 # argocd.argoproj.io/hook: "PreSync"             
@@ -180,8 +180,8 @@ spec:
             metadata:
               name: cert-manager-duckdns-webhook
               namespace: argocd
-            annotations:
-              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+            # annotations:
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
                 # argocd.argoproj.io/sync-wave: "0"
               # argocd.argoproj.io/instance: cert-manager-bundle
 
@@ -252,7 +252,7 @@ spec:
             name: duckdns-ddns
             namespace: argocd
             annotations:
-              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
               # argocd.argoproj.io/instance: cert-manager-bundle
               argocd.argoproj.io/hook: "PreSync"
               
