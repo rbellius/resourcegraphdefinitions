@@ -36,6 +36,8 @@ spec:
         kind: Namespace
         metadata:
           name: cert-manager
+          # annotations:
+          #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
 
 
     - id: certManagerBundle
@@ -48,6 +50,7 @@ spec:
             name: cert-manager-bundle
             namespace: cert-manager
             annotations:
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
               argocd.argoproj.io/instance: cert-manager-bundle
           spec:
             env: ${schema.spec.env}
@@ -70,26 +73,63 @@ spec:
             name: argocd
             namespace: argocd
             annotations:
-              argocd.argoproj.io/instance: argocd-ingress          
+              argocd.argoproj.io/instance: argocd-ingress
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
           spec:
             env: ${schema.spec.env}
             subdomain: argocd
             service:
               name: argocd-server
 
-  
-    - id: giteaIngressRequest
+
+    - id: homepageIngressRequest
       template:
           apiVersion: kro.run/v1alpha1
           kind: IngressRequest
           metadata:
-            name: gitea
-            namespace: gitea
+            name: homepage
+            namespace: homepage
             annotations:
-              argocd.argoproj.io/instance: gitea         
+              argocd.argoproj.io/instance: homepage
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
           spec:
             env: ${schema.spec.env}
-            subdomain: git
+            subdomain: home
             service:
-              name: gitea-http
+              name: homepage
               port: 3000
+
+    - id: headlampIngressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: headlamp
+            namespace: kube-system
+            annotations:
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+              argocd.argoproj.io/instance: headlamp     
+          spec:
+            env: ${schema.spec.env}
+            subdomain: headlamp
+            service:
+              name: headlamp
+              port: 80
+  
+  
+    # - id: giteaIngressRequest
+    #   template:
+    #       apiVersion: kro.run/v1alpha1
+    #       kind: IngressRequest
+    #       metadata:
+    #         name: gitea
+    #         namespace: gitea
+    #         annotations:
+    #           argocd.argoproj.io/instance: gitea         
+    #       spec:
+    #         env: ${schema.spec.env}
+    #         subdomain: git
+    #         service:
+    #           name: gitea-http
+    #           port: 3000
+

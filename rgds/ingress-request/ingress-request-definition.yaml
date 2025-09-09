@@ -26,6 +26,7 @@ spec:
     - id: ingressConfig
       readyWhen:
         - ${ingressConfig.metadata.creationTimestamp}
+        # - ${ingressConfig.metadata.?creationTimestamp}
       externalRef:
         apiVersion: v1
         kind: ConfigMap
