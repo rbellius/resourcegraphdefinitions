@@ -54,8 +54,8 @@ spec:
                 argocd.argoproj.io/instance: cert-manager-bundle
                   # argocd.argoproj.io/hook: PreSync
                   # argocd.argoproj.io/sync-wave: "-10"              
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
+              # finalizers:
+              #   - resources-finalizer.argocd.argoproj.io/foreground
 
             spec:
 
@@ -100,8 +100,8 @@ spec:
             # annotations:
               # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
               # argocd.argoproj.io/hook: PreSync
-            finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
+            # finalizers:
+            #     - resources-finalizer.argocd.argoproj.io/foreground
               # argocd.argoproj.io/sync-wave: "0"
             labels:
               app.kubernetes.io/instance:   cert-manager-bundle
@@ -130,8 +130,8 @@ spec:
                 # argocd.argoproj.io/sync-wave: "-10" 
                 # argocd.argoproj.io/hook: "PreSync"             
       
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io
+              # finalizers:
+              #   - resources-finalizer.argocd.argoproj.io
               labels:
                     app.kubernetes.io/name:       'cert-manager-${schema.spec.tls.provider}-application'
                     app.kubernetes.io/instance:   'cert-manager-bundle'
@@ -184,8 +184,8 @@ spec:
                 # argocd.argoproj.io/sync-wave: "0"
               # argocd.argoproj.io/instance: cert-manager-bundle
 
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
+              # finalizers:
+              #   - resources-finalizer.argocd.argoproj.io/foreground
               labels:
                   app.kubernetes.io/name:       cert-manager-duckdns-webhook-application
                   app.kubernetes.io/instance:   cert-manager-bundle
@@ -255,8 +255,8 @@ spec:
               # argocd.argoproj.io/instance: cert-manager-bundle
               argocd.argoproj.io/hook: "PreSync"
               
-            finalizers:
-              - resources-finalizer.argocd.argoproj.io/foreground
+            # finalizers:
+            #   - resources-finalizer.argocd.argoproj.io/foreground
             labels:
                 app.kubernetes.io/name:       duckdns-ddns-application
                 app.kubernetes.io/instance:   cert-manager-bundle
