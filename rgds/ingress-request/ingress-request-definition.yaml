@@ -24,8 +24,8 @@ spec:
 
   resources:
     - id: ingressConfig
-      readyWhen:
-        - ${ingressConfig.metadata.?creationTimestamp}
+      # readyWhen:
+        # - ${ingressConfig.metadata.?creationTimestamp}
         # - ${ingressConfig.metadata.?creationTimestamp}
       externalRef:
         apiVersion: v1
