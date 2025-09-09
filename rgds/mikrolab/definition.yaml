@@ -82,22 +82,22 @@ spec:
               name: argocd-server
 
 
-    - id: homepageIngressRequest
-      template:
-          apiVersion: kro.run/v1alpha1
-          kind: IngressRequest
-          metadata:
-            name: homepage
-            namespace: homepage
-            annotations:
-              argocd.argoproj.io/instance: homepage
-              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
-          spec:
-            env: ${schema.spec.env}
-            subdomain: home
-            service:
-              name: homepage
-              port: 3000
+    # - id: homepageIngressRequest
+    #   template:
+    #       apiVersion: kro.run/v1alpha1
+    #       kind: IngressRequest
+    #       metadata:
+    #         name: homepage
+    #         namespace: homepage
+    #         annotations:
+    #           argocd.argoproj.io/instance: homepage
+    #           # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
+    #       spec:
+    #         env: ${schema.spec.env}
+    #         subdomain: home
+    #         service:
+    #           name: homepage
+    #           port: 3000
 
     - id: headlampIngressRequest
       template:
