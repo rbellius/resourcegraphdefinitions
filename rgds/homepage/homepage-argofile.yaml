@@ -1,0 +1,107 @@
+piVersion: kro.run/v1alpha1
+kind: Argofile
+metadata:
+  name: homepage
+  namespace: argocd
+
+spec:
+  applications: 
+
+    # Future plans:
+    ## Make these generic and move them into a file a gitgenerator can pull, with everything disabled by default
+    ## Then use the list generator to merge with instance spec that overrides any default values. 
+    ## Each chart can be enabled by setting enabled: true for that named item. 
+    - name: homepage-chart
+      enabled: true
+      hook: PreSync
+      sync:
+        createNamespace: true
+      destination:
+        namespace: homepage
+      source:
+        # repoURL: oci://ghcr.io/m0nsterrr/helm-charts/homepage
+        # path: .
+        # targetRevision: 4.1.4
+        repoURL: https://jameswynn.github.io/helm-charts
+        chart: homepage
+        targetRevision: 2.1.0
+        values: |        
+          crds:
+            create: false
+
+
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              # This value must be set
+              # ref: https://gethomepage.dev/installation/#homepage_allowed_hosts
+              value: home.cloudbreaker.me
+          config:
+            # To use an existing ConfigMap uncomment this line and specify the name
+            # useExistingConfigMap: existing-homepage-configmap
+            bookmarks:
+              - Developer:
+                  - Github:
+                      - abbr: GH
+                        href: https://github.com/eddiemoya/mikrolab-rr7
+
+            services:
+              - Ops:
+                  - GitOps:
+                      href: http://argocd.cloudbreaker.me/
+                      description: ArgoCD
+
+                  - Git:
+                      href: http://gitea.cloudbreaker.me/
+                      description: Gitea
+              - Settings:
+                    - Config:
+                        href: http://headlamp.cloudbreaker.me/
+                        description: Install and manage cluster settings and helm charts
+
+              - Personal Cloud Services:
+                    - NextCloud:
+                        href: http://cloud.cloudbreaker.me
+                        description: Self-hosted Email, Calendar, Collaborative documents and more
+                    - Notes:
+                        href: http://notes.cloudbreaker.me
+                        description: NotebookLM
+
+              - Public Services:
+                    - Messenger:
+                        href: http://matrix.cloudbreaker.me
+                        description: Homepage is 😎
+
+                    - Collaborative Docs:
+                        href: http://docs.cloudbreaker.com
+                        description: Secure platform for creating and sharing documents
+            widgets:
+              - resources:
+                  # change backend to 'kubernetes' to use Kubernetes integration. Requires RBAC.
+                  backend: resources
+                  expanded: true
+                  cpu: true
+                  memory: true
+              - search:
+                  provider: duckduckgo
+                  target: _blank
+              # Uncomment to enable Kubernetes integration
+              - kubernetes:
+                  cluster:
+                    show: true
+                    cpu: true
+                    memory: true
+                    showLabel: true
+                    label: "cluster"
+                  nodes:
+                    show: true
+                    cpu: true
+                    memory: true
+                    showLabel: true
+
+            kubernetes:
+              # change mode to 'cluster' to use RBAC service account
+              mode: disable
+              # Uncomment to enable gateway api HttpRoute discovery.
+              #gateway: true
+            docker:
+            settings:
