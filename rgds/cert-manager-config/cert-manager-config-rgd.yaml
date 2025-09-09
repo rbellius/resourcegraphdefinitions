@@ -55,8 +55,8 @@ spec:
                 # argocd.argoproj.io/hook: PreSync
                 # argocd.argoproj.io/sync-wave: "-10"              
       
-              finalizers:
-                - resources-finalizer.argocd.argoproj.io/foreground
+            finalizers:
+              - resources-finalizer.argocd.argoproj.io/foreground
 
             spec:
 
