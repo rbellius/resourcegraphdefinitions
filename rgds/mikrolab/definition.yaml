@@ -64,6 +64,19 @@ spec:
               domain: ${schema.spec.certmanager.domain}
               dynamic: ${schema.spec.certmanager.provider == "duckdns"}
 
+    - id: homepageChart
+      template:
+        apiVersion: kro.run/v1alpha1
+        kind: HomepageChart
+        metadata:
+          name: homepage
+          namespace: argocd
+          annotations:
+            # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+            argocd.argoproj.io/instance: homepage-chart
+        spec:
+          env: ${schema.spec.env}
+          chart: homepage
   
     # - id: argocdIngressRequest
     #   template:
@@ -81,23 +94,6 @@ spec:
     #         service:
     #           name: argocd-server
 
-
-    # - id: homepageIngressRequest
-    #   template:
-    #       apiVersion: kro.run/v1alpha1
-    #       kind: IngressRequest
-    #       metadata:
-    #         name: homepage
-    #         namespace: homepage
-    #         annotations:
-    #           argocd.argoproj.io/instance: homepage
-    #           # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
-    #       spec:
-    #         env: ${schema.spec.env}
-    #         subdomain: home
-    #         service:
-    #           name: homepage
-    #           port: 3000
 
     # - id: headlampIngressRequest
     #   template:
