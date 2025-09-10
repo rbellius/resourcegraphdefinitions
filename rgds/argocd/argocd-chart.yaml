@@ -70,5 +70,5 @@ spec:
             env: ${schema.spec.env}
             subdomain: argocd
             service:
-              name: argocd
+              name: argocd-server
 
