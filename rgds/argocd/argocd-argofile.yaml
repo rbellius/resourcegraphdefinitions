@@ -1,0 +1,75 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: argocd-chart
+  annotations:
+    argocd.argoproj.io/instance: argocd-chart
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: ArgoCDChart
+    spec:
+      chart: string | default="argocd" enum="argocd"
+      env: string | default="staging" enum="staging,production"
+
+
+  resources:
+    - id: argocdChart
+      # readyWhen:
+      #   - ${homepageChart.status.condition.status}
+      template:
+        apiVersion: kro.run/v1alpha1
+        kind: Argofile
+        metadata:
+          name: argocd
+          namespace: argocd
+
+        spec:
+          applications: 
+
+            # Future plans:
+            ## Make these generic and move them into a file a gitgenerator can pull, with everything disabled by default
+            ## Then use the list generator to merge with instance spec that overrides any default values. 
+            ## Each chart can be enabled by setting enabled: true for that named item. 
+            - name: argocd-chart
+              enabled: true
+              hook: PreSync
+              sync:
+                createNamespace: true
+              destination:
+                namespace: argocd    
+              source:
+                repoURL: https://argoproj.github.io/argo-helm
+                targetRevision: 8.3.0
+                chart: argo-cd
+                values: |
+                  crds:
+                    create: false
+                    
+                
+                  dex:
+                    enabled: false
+
+                  configs:
+                    params:
+                      server.insecure: true
+                    cm:
+                      create: false
+    - id: argocdIngressRequest
+      template:
+          apiVersion: kro.run/v1alpha1
+          kind: IngressRequest
+          metadata:
+            name: argocd
+            namespace: argocd
+            annotations:
+              argocd.argoproj.io/instance: argocd
+              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
+          spec:
+            env: ${schema.spec.env}
+            subdomain: home
+            service:
+              name: argocd
+
