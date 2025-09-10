@@ -70,6 +70,41 @@ spec:
 
 
 
+      - id: ingressRequestRGD
+        template:
+          apiVersion: kro.run/v1alpha1
+          kind: Argofile
+          metadata:
+            name: ingress-request
+            namespace: argocd
+
+          spec:
+            applications: 
+
+              # Future plans:
+              ## Make these generic and move them into a file a gitgenerator can pull, with everything disabled by default
+              ## Then use the list generator to merge with instance spec that overrides any default values. 
+              ## Each chart can be enabled by setting enabled: true for that named item. 
+              - name: ingress-requests-rgd
+                enabled: true
+                # hook: PreSync
+                sync:
+                  createNamespace: true
+                destination:
+                  namespace: mikrolab
+                source:
+                  repoURL: https://codeberg.org/eddiemoya/resourcegraphdefinitions.git
+                  targetRevision: main
+                  path: rgds/ingress-request
+                  directory:
+                    recurse: true
+
+                    ## the \ is to break the single line string into multiple lines
+                    ## Individual RGDs can be enabled/disabled by adding to removing lines below
+                    # include: "{\
+                    #     ingress-request/*\
+                    #   }"
+
 
 
       - id: certmanagerChart
@@ -299,39 +334,4 @@ spec:
 
                   getIpCommand: kubectl -n kube-system get svc traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
-
-      - id: ingressRequestRGD
-        template:
-          apiVersion: kro.run/v1alpha1
-          kind: Argofile
-          metadata:
-            name: ingress-request
-            namespace: argocd
-
-          spec:
-            applications: 
-
-              # Future plans:
-              ## Make these generic and move them into a file a gitgenerator can pull, with everything disabled by default
-              ## Then use the list generator to merge with instance spec that overrides any default values. 
-              ## Each chart can be enabled by setting enabled: true for that named item. 
-              - name: ingress-requests-rgd
-                enabled: true
-                # hook: PreSync
-                sync:
-                  createNamespace: true
-                destination:
-                  namespace: mikrolab
-                source:
-                  repoURL: https://codeberg.org/eddiemoya/resourcegraphdefinitions.git
-                  targetRevision: main
-                  path: rgds/ingress-request
-                  directory:
-                    recurse: true
-
-                    ## the \ is to break the single line string into multiple lines
-                    ## Individual RGDs can be enabled/disabled by adding to removing lines below
-                    # include: "{\
-                    #     ingress-request/*\
-                    #   }"
 
