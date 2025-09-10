@@ -87,7 +87,8 @@ spec:
             env: ${schema.spec.env}
             subdomain: gitea
             service:
-              name: gitea
+              name: gitea-http
+              port: 3000
 
 
 

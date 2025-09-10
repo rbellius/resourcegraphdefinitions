@@ -39,7 +39,7 @@ spec:
               sync:
                 createNamespace: true
               destination:
-                namespace: headlamp
+                namespace: kube-system
               source:
                 # repoURL: oci://ghcr.io/m0nsterrr/helm-charts/homepage
                 # path: .
@@ -55,7 +55,7 @@ spec:
           kind: IngressRequest
           metadata:
             name: headlamp
-            namespace: headlamp
+            namespace: kube-system
             annotations:
               argocd.argoproj.io/instance: headlamp
               argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
