@@ -136,7 +136,7 @@ spec:
             namespace: homepage
             annotations:
               argocd.argoproj.io/instance: homepage
-              argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
+              # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
           spec:
             env: ${schema.spec.env}
             subdomain: home
