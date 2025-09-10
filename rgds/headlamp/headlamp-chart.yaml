@@ -44,9 +44,9 @@ spec:
                 # repoURL: oci://ghcr.io/m0nsterrr/helm-charts/homepage
                 # path: .
                 # targetRevision: 4.1.4
-                repoURL: https://jameswynn.github.io/helm-charts
-                chart: homepage
-                targetRevision: 2.1.0
+                repoURL: https://kubernetes-sigs.github.io/headlamp/
+                chart: headlamp
+                targetRevision: 0.34.0
 
 
     - id: headlampIngressRequest
