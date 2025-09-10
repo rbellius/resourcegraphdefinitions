@@ -67,3 +67,4 @@ spec:
             subdomain: headlamp
             service:
               name: headlamp
+              port: 3000

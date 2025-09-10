@@ -33,7 +33,7 @@ spec:
             ## Make these generic and move them into a file a gitgenerator can pull, with everything disabled by default
             ## Then use the list generator to merge with instance spec that overrides any default values. 
             ## Each chart can be enabled by setting enabled: true for that named item. 
-            - name: gitea-chart
+            - name: gitea
               enabled: true
               hook: PreSync
               sync:
