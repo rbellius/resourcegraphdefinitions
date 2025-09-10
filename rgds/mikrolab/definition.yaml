@@ -64,6 +64,14 @@ spec:
               domain: ${schema.spec.certmanager.domain}
               dynamic: ${schema.spec.certmanager.provider == "duckdns"}
 
+    - id: ingressRequestConfigMap
+      externalRef:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ingress-request-configmap
+          namespace: cert-manager
+
     - id: homepageChart
       template:
         apiVersion: kro.run/v1alpha1
