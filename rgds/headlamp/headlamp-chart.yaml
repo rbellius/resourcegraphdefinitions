@@ -47,9 +47,6 @@ spec:
                 repoURL: https://jameswynn.github.io/helm-charts
                 chart: homepage
                 targetRevision: 2.1.0
-                values: |        
-                  crds:
-                    create: false
 
 
     - id: headlampIngressRequest
