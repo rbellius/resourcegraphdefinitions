@@ -72,19 +72,19 @@ spec:
           name: ingress-request-configmap
           namespace: cert-manager
 
-    - id: homepageChart
-      template:
-        apiVersion: kro.run/v1alpha1
-        kind: HomepageChart
-        metadata:
-          name: homepage
-          namespace: argocd
-          annotations:
-            # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
-            argocd.argoproj.io/instance: homepage-chart
-        spec:
-          env: ${schema.spec.env}
-          chart: homepage
+    # - id: homepageChart
+    #   template:
+    #     apiVersion: kro.run/v1alpha1
+    #     kind: HomepageChart
+    #     metadata:
+    #       name: homepage
+    #       namespace: argocd
+    #       annotations:
+    #         # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+    #         argocd.argoproj.io/instance: homepage-chart
+    #     spec:
+    #       env: ${schema.spec.env}
+    #       chart: homepage
   
     # - id: argocdIngressRequest
     #   template:
