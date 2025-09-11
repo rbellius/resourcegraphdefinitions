@@ -42,7 +42,7 @@ spec:
                 namespace: gitea
               source:
                 repoURL: oci://docker.gitea.com/charts/gitea
-                targetRevision: 12.0.0
+                targetRevision: 12.2.0
                 path: .
                 values: |
                   crds:
@@ -50,14 +50,18 @@ spec:
 
                   gitea:
                     config:
-                      database:
-                        DB_TYPE: sqlite3
-                      session:
-                        PROVIDER: memory
-                      cache:
-                        ADAPTER: memory
-                      queue:
-                        TYPE: level
+                      actions:
+                        ENABLED: true
+
+
+                  database:
+                    DB_TYPE: sqlite3
+                  session:
+                    PROVIDER: memory
+                  cache:
+                    ADAPTER: memory
+                  queue:
+                    TYPE: level
                         
                   valkey:
                     enabled: true
@@ -72,6 +76,22 @@ spec:
                   valkey-cluster:
                     enabled: false
 
+            # - name: giteaActions
+            #   enabled: true
+            #   hook: PreSync
+            #   sync:
+            #     createNamespace: true
+            #   destination:
+            #     namespace: gitea
+            #   source:
+            #     repoURL: https://gitea.com/gitea/helm-actions.git
+            #     path: .
+            #     targetRevision: main
+            #     values: |
+            #       crds:
+            #         create: true
+                  
+            #       enabled: true
 
     - id: giteaIngressRequest
       template:
