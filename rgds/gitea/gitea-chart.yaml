@@ -52,7 +52,8 @@ spec:
                     config:
                       actions:
                         ENABLED: true
-
+                    admin:
+                      existingSecret: gitea-admin-secret
 
                   database:
                     DB_TYPE: sqlite3
