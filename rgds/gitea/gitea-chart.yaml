@@ -47,6 +47,10 @@ spec:
                 values: |
                   crds:
                     create: true
+                  service:
+                    ssh:
+                      type: LoadBalancer
+                      port: 2222
 
                   gitea:
                     config:
@@ -57,7 +61,7 @@ spec:
                         DOMAIN: gitea.cloudbreaker.me
                         SSH_DOMAIN: gitea.cloudbreaker.me
                         HTTP_PORT: 3000
-                        SSH_PORT: 22
+                        SSH_PORT: 2222
                     admin:
                       existingSecret: gitea-admin-secret
 
