@@ -52,6 +52,12 @@ spec:
                     config:
                       actions:
                         ENABLED: true
+                      server:
+                        ROOT_URL: https://gitea.cloudbreaker.me/
+                        DOMAIN: gitea.cloudbreaker.me
+                        SSH_DOMAIN: gitea.cloudbreaker.me
+                        HTTP_PORT: 3000
+                        SSH_PORT: 22
                     admin:
                       existingSecret: gitea-admin-secret
 
@@ -77,6 +83,7 @@ spec:
                   valkey-cluster:
                     enabled: false
 
+          # OFFLINE_MODE: false 
             # - name: giteaActions
             #   enabled: true
             #   hook: PreSync
