@@ -48,7 +48,7 @@ spec:
           name: ${schema.metadata.name}
           namespace: ${schema.metadata.namespace}
           annotations:
-            argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+            # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
             cert-manager.io/cluster-issuer: ${ingressConfig.data.?clusterIssuer}
             argocd.argoproj.io/instance: ${schema.metadata.name}-${schema.metadata.namespace}-ingress-request
             
