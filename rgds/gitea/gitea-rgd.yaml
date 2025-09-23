@@ -1,7 +1,7 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: gitea-chart
+  name: gitea
   annotations:
     argocd.argoproj.io/instance: gitea
   finalizers:
@@ -9,7 +9,7 @@ metadata:
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: GiteaChart
+    kind: GiteaConfig
     spec:
  
       env: string | default="staging" enum="staging,production"
