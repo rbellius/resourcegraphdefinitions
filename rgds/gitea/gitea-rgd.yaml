@@ -499,7 +499,8 @@ spec:
       includeWhen:
         - ${schema.spec.actions == true}
       readyWhen:
-        - ${giteaActionsChart.status.sync.status == "Synced"}
+        - ${giteaActionsChart.status.sync.status == "Synced" && giteaActionsChart.status.health.status == "Healthy"}
+
       template:
         apiVersion: argoproj.io/v1alpha1
         kind: Application
