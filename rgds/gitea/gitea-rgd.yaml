@@ -498,6 +498,8 @@ spec:
     - id: giteaActionsChart
       includeWhen:
         - ${schema.spec.actions == true}
+      readyWhen:
+        - ${giteaActionsChart.status.sync.status == "Synced"}
       template:
         apiVersion: argoproj.io/v1alpha1
         kind: Application
