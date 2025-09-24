@@ -72,6 +72,29 @@ spec:
           name: ingress-request-configmap
           namespace: cert-manager
 
+
+    - id: giteaConfig
+      template:
+        apiVersion: kro.run/v1alpha1
+        kind: GiteaConfig
+        metadata:
+          name: gitea
+
+        spec:
+          env: staging
+          domain: cloudbreaker.me
+          actions: true
+          mirrors:
+            - https://codeberg.org/eddiemoya/docker.git
+            - https://codeberg.org/eddiemoya/resourcegraphdefinitions.git
+            - https://codeberg.org/eddiemoya/charts.git
+            - https://codeberg.org/eddiemoya/rr7-mikrolab-template.git
+
+
+
+
+
+
     # - id: homepageChart
     #   template:
     #     apiVersion: kro.run/v1alpha1
