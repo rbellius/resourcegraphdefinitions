@@ -27,7 +27,8 @@ spec:
 
     status:
       argoApps:
-        gitea: ${giteaApp.status.sync.status == "Synced"}     
+        gitea: ${giteaApp.status.sync.status == "Synced"} 
+        giteaActions: ${giteaActionsChart.status.sync.status == "Synced" || schema.spec.actions == false}    
 
     
   resources:
