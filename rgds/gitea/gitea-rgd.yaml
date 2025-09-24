@@ -581,7 +581,7 @@ spec:
 
 
                       # Check if secret alredy exists, and if it does exit early with zero status
-                      secretExists=$(kubectl get secret ${SECRET_NAME} -n gitea --ignore-not-found)
+                      secretExists=$(kubectl get secret $SECRET_NAME -n gitea --ignore-not-found)
                       if [ -n "$secretExists" ]; then
                         echo "Secret $SECRET_NAME already exists. Exiting job."
                         kubectl delete secret $SECRET_NAME -n gitea
