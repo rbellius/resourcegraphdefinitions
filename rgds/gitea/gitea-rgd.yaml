@@ -35,7 +35,7 @@ spec:
 
     - id: giteaApp
       readyWhen:
-        - ${giteaApp.status.sync.status == "Synced"}
+        - ${giteaApp.status.sync.status == "Synced" && giteaApp.status.health.status == "Healthy"}
       template:
         apiVersion: argoproj.io/v1alpha1
         kind: Application
