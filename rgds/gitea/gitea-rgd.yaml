@@ -28,7 +28,7 @@ spec:
     status:
       argoApps:
         gitea: ${giteaApp.status.sync.status == "Synced"} 
-        giteaActions: ${giteaActionsChart.status.sync.status == "Synced" || schema.spec.actions == false}    
+        giteaActions: ${giteaActionsChart.status.sync.status == "Synced"}    
 
     
   resources:
@@ -394,7 +394,7 @@ spec:
                         -H "Authorization: token $TOKEN" \
                         -H "Content-Type: application/json" \
                         -X POST http://$DOMAIN/api/v1/repos/migrate \
-                        -d '{ "clone_addr": "'"$REPO"'","repo_name": "'"$REPO_NAME"'", "repo_owner": "'"$ADMIN_USER"'", "mirror": true, "private": false  }')
+                        -d '{ "clone_addr": "'"$REPO"'","repo_name": "'"$REPO_NAME"'", "repo_owner": "'"$ADMIN_USER"'", "mirror": false, "private": false  }')
 
                       echo $response | jq '.message, .url'
 
