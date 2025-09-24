@@ -132,7 +132,7 @@ spec:
         rules:
         - apiGroups: [""] # "" indicates the core API group
           resources: ["services", "secrets"]
-          verbs: ["get", "watch", "list", "create", "write"]
+          verbs: ["get", "watch", "list", "create", "write", "delete"]
     - id: giteaRbacBinding
 
       template:
