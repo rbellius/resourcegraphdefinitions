@@ -315,6 +315,7 @@ spec:
           completionMode: Indexed
           completions: ${size(schema.spec.mirrors)}
           parallelism: ${size(schema.spec.mirrors)}
+          ttlSecondsAfterFinished: 300
           template:
             spec:
               restartPolicy: Never
