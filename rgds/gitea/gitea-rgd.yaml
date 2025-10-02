@@ -181,7 +181,7 @@ spec:
             name: generate-admin-pat
             namespace: gitea
           spec:
-            ttlSecondsAfterFinished: 300
+            # ttlSecondsAfterFinished: 300
             backoffLimit: 1
             podFailurePolicy:
               rules:
@@ -313,7 +313,7 @@ spec:
           name: generate-act-runner-token
           namespace: gitea
         spec:
-          ttlSecondsAfterFinished: 300
+          # ttlSecondsAfterFinished: 300
           backoffLimit: 1
               
           template:
@@ -505,7 +505,7 @@ spec:
           namespace: gitea
         spec:
           completionMode: Indexed
-          ttlSecondsAfterFinished: 300
+          # ttlSecondsAfterFinished: 300
           completions: ${schema.spec.mirrorCount}
           parallelism: ${schema.spec.mirrorCount}
           template:
