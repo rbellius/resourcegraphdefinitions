@@ -300,125 +300,6 @@ spec:
                         fi
 
 
-    - id: createMirrorRepoJob
-      # includeWhen:
-      #   - ${size(schema.spec.mirrors) > 0}
-      readyWhen:
-        - ${createMirrorRepoJob.status.completionTime != null}
-      template:
-        apiVersion: batch/v1
-        kind: Job
-        metadata:
-          name: create-mirror-repo
-          namespace: gitea
-        spec:
-          completionMode: Indexed
-          ttlSecondsAfterFinished: 300
-          completions: ${schema.spec.mirrorCount}
-          parallelism: ${schema.spec.mirrorCount}
-          template:
-            spec:
-              restartPolicy: Never
-              serviceAccountName: gitea-admin-sa
-              containers:
-                - name: create-mirror-repo-job-container
-                  image: 'codeberg.org/eddiemoya/kubectl:1.31'
-                  imagePullPolicy: Always
-                  command: ["/bin/bash", "-c"]
-                  env:
-                  - name: OWNER_USER
-                    valueFrom:
-                      secretKeyRef:
-                        name: gitea-admin-secret
-                        key: username
-
-                  - name: DOMAIN
-                    value: gitea.cloudbreaker.me
-
-
-                  - name: TOKEN
-                    valueFrom:
-                      secretKeyRef:
-                        key: token
-                        name: gitea-admin-pat-secret
-                    
-                  # use repos from the spec
-                  - name: REPOS
-                    value: ${schema.spec.mirrors}                  
-                  args:
-                    - | 
-               
-                      which curl || (echo "curl not found!" && exit 1)
-                      which jq || (echo "jq not found!" && exit 1)
-                      which yq || (echo "yq not found!" && exit 1)
-                      which kubectl || (echo "kubectl not found!" && exit 1)
-                      kubectl cluster-info
-
-                      echo "-------------"
-
-                      ## Setup
-                      idx=$((JOB_COMPLETION_INDEX+1))
-                      REPOS=$(echo "$REPOS" | sed '/^\s*$/d' | sed 's/^[ \t]*//;s/[ \t]*$//')
-                      REPO=$(echo "$REPOS" | awk 'NR=='"$idx"'')
-                      REPO_NAME=$(basename "$(dirname "$REPO")")
-                      BASENAME=$(basename  -s .git "$REPO")
-                      REPO_SLUG="$REPO_NAME-$BASENAME"
-                      REQUEST_BODY=$(jq --null-input \
-                          --arg repo_owner $OWNER_USER \
-                          --arg repo_name $REPO_SLUG \
-                          --arg clone_addr $REPO \
-                      '{ "clone_addr": $clone_addr,"repo_name": $repo_name, "repo_owner": $repo_owner, "mirror": false, "private": false  }')
-
-                      ## Logs / Debugging
-                      echo $REPOS
-                      # echo $REPO
-                      # echo $REPO_NAME
-                      # echo $BASENAME
-                      # echo $REPO_SLUG
-                      # echo $REQUEST_BODY
-
-                      echo "Using Gitea Admin User: $OWNER_USER"
-                      echo "Using Gitea Domain: $DOMAIN"
-                      echo "Working on Job Completion Index: $JOB_COMPLETION_INDEX"
-                      echo "Processing repository: $REPO_NAME from '"$REPO"' (Index: $idx)"
-                      echo "Request Body: $REQUEST_BODY"
-
-          
-                      ## Requests
-                      echo "Waiting for Gitea to be ready...http://$DOMAIN/api/v1/version"
-                      until curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/api/v1/version" | grep -q "200"; do
-                          echo "Gitea is not ready yet. Retrying in 10 seconds..."
-                          curl -w "%{http_code}" "http://$DOMAIN/api/v1/version"
-                          sleep 10
-                      done
-                      echo "Gitea is ready!"
-
-                      echo "Attempting to create mirror repository"
-                      response=$( curl -s \
-                          -H "Authorization: token $TOKEN" \
-                          -H "Content-Type: application/json" \
-                          -X POST http://$DOMAIN/api/v1/repos/migrate \
-                          -d "$REQUEST_BODY" )
-
-
-                      ## Response
-                      HTML_URL=$(echo $response | jq -r '.html_url // empty' )
-                      MESSAGE=$(echo $response | jq -r '.message // empty' )
-                      URL=$(echo $response | jq -r '.url // empty' )
-
-                      if [ -n "$HTML_URL" ]; then
-                          echo "Repository created successfully: $HTML_URL"
-                          exit 0
-                      else
-                          echo "Did NOT create repository."
-                      fi
-
-                      if [ -n "$MESSAGE" ]; then
-                          echo "Message: $MESSAGE"
-                          echo "URL: $URL"
-                          exit 0
-                      fi
-
 
     - id: generateActRunnerTokenJob
       includeWhen:
@@ -610,3 +491,122 @@ spec:
                         kubectl delete secret $SECRET_NAME -n gitea
                       fi
 
+
+    - id: createMirrorRepoJob
+      # includeWhen:
+      #   - ${size(schema.spec.mirrors) > 0}
+      readyWhen:
+        - ${createMirrorRepoJob.status.completionTime != null}
+      template:
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: create-mirror-repo
+          namespace: gitea
+        spec:
+          completionMode: Indexed
+          ttlSecondsAfterFinished: 300
+          completions: ${schema.spec.mirrorCount}
+          parallelism: ${schema.spec.mirrorCount}
+          template:
+            spec:
+              restartPolicy: Never
+              serviceAccountName: gitea-admin-sa
+              containers:
+                - name: create-mirror-repo-job-container
+                  image: 'codeberg.org/eddiemoya/kubectl:1.31'
+                  imagePullPolicy: Always
+                  command: ["/bin/bash", "-c"]
+                  env:
+                  - name: OWNER_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: gitea-admin-secret
+                        key: username
+
+                  - name: DOMAIN
+                    value: gitea.cloudbreaker.me
+
+
+                  - name: TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        key: token
+                        name: gitea-admin-pat-secret
+                    
+                  # use repos from the spec
+                  - name: REPOS
+                    value: ${schema.spec.mirrors}                  
+                  args:
+                    - | 
+               
+                      which curl || (echo "curl not found!" && exit 1)
+                      which jq || (echo "jq not found!" && exit 1)
+                      which yq || (echo "yq not found!" && exit 1)
+                      which kubectl || (echo "kubectl not found!" && exit 1)
+                      kubectl cluster-info
+
+                      echo "-------------"
+
+                      ## Setup
+                      idx=$((JOB_COMPLETION_INDEX+1))
+                      REPOS=$(echo "$REPOS" | sed '/^\s*$/d' | sed 's/^[ \t]*//;s/[ \t]*$//')
+                      REPO=$(echo "$REPOS" | awk 'NR=='"$idx"'')
+                      REPO_NAME=$(basename "$(dirname "$REPO")")
+                      BASENAME=$(basename  -s .git "$REPO")
+                      REPO_SLUG="$REPO_NAME-$BASENAME"
+                      REQUEST_BODY=$(jq --null-input \
+                          --arg repo_owner $OWNER_USER \
+                          --arg repo_name $REPO_SLUG \
+                          --arg clone_addr $REPO \
+                      '{ "clone_addr": $clone_addr,"repo_name": $repo_name, "repo_owner": $repo_owner, "mirror": false, "private": false  }')
+
+                      ## Logs / Debugging
+                      echo $REPOS
+                      # echo $REPO
+                      # echo $REPO_NAME
+                      # echo $BASENAME
+                      # echo $REPO_SLUG
+                      # echo $REQUEST_BODY
+
+                      echo "Using Gitea Admin User: $OWNER_USER"
+                      echo "Using Gitea Domain: $DOMAIN"
+                      echo "Working on Job Completion Index: $JOB_COMPLETION_INDEX"
+                      echo "Processing repository: $REPO_NAME from '"$REPO"' (Index: $idx)"
+                      echo "Request Body: $REQUEST_BODY"
+
+          
+                      ## Requests
+                      echo "Waiting for Gitea to be ready...http://$DOMAIN/api/v1/version"
+                      until curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/api/v1/version" | grep -q "200"; do
+                          echo "Gitea is not ready yet. Retrying in 10 seconds..."
+                          curl -w "%{http_code}" "http://$DOMAIN/api/v1/version"
+                          sleep 10
+                      done
+                      echo "Gitea is ready!"
+
+                      echo "Attempting to create mirror repository"
+                      response=$( curl -s \
+                          -H "Authorization: token $TOKEN" \
+                          -H "Content-Type: application/json" \
+                          -X POST http://$DOMAIN/api/v1/repos/migrate \
+                          -d "$REQUEST_BODY" )
+
+
+                      ## Response
+                      HTML_URL=$(echo $response | jq -r '.html_url // empty' )
+                      MESSAGE=$(echo $response | jq -r '.message // empty' )
+                      URL=$(echo $response | jq -r '.url // empty' )
+
+                      if [ -n "$HTML_URL" ]; then
+                          echo "Repository created successfully: $HTML_URL"
+                          exit 0
+                      else
+                          echo "Did NOT create repository."
+                      fi
+
+                      if [ -n "$MESSAGE" ]; then
+                          echo "Message: $MESSAGE"
+                          echo "URL: $URL"
+                          exit 0
+                      fi
