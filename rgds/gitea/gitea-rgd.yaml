@@ -4,8 +4,8 @@ metadata:
   name: gitea
   annotations:
     argocd.argoproj.io/instance: gitea
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io/foreground
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io/foreground
 spec:
   schema:
     apiVersion: v1alpha1
@@ -18,17 +18,15 @@ spec:
 
       ingressRequest: boolean | default=true
       actions: boolean | default=true
-      mirrors: '[]Mirror | default=[]'
+
+      # space delimited list of repos to mirror
+      mirrors: string | default=[]
+      mirrorCount: integer | default=0
     
-
-
-    types:
-      Mirror: string | required=false
 
     status:
       argoApps:
-        gitea: ${giteaApp.status.sync.status == "Synced"} 
-        giteaActions: ${giteaActionsChart.status.sync.status == "Synced"}    
+        gitea: ${giteaApp.status.sync.status == "Synced"}     
 
     
   resources:
@@ -36,7 +34,7 @@ spec:
 
     - id: giteaApp
       readyWhen:
-        - ${giteaApp.status.sync.status == "Synced" && giteaApp.status.health.status == "Healthy"}
+        - ${giteaApp.status.sync.status == "Synced"}
       template:
         apiVersion: argoproj.io/v1alpha1
         kind: Application
@@ -301,9 +299,10 @@ spec:
                             exit 0
                         fi
 
+
     - id: createMirrorRepoJob
-      includeWhen:
-        - ${size(schema.spec.mirrors) > 0}
+      # includeWhen:
+      #   - ${size(schema.spec.mirrors) > 0}
       readyWhen:
         - ${createMirrorRepoJob.status.completionTime != null}
       template:
@@ -314,9 +313,9 @@ spec:
           namespace: gitea
         spec:
           completionMode: Indexed
-          completions: ${size(schema.spec.mirrors)}
-          parallelism: ${size(schema.spec.mirrors)}
           ttlSecondsAfterFinished: 300
+          completions: ${schema.spec.mirrorCount}
+          parallelism: ${schema.spec.mirrorCount}
           template:
             spec:
               restartPolicy: Never
@@ -327,17 +326,11 @@ spec:
                   imagePullPolicy: Always
                   command: ["/bin/bash", "-c"]
                   env:
-                  - name: ADMIN_USER
+                  - name: OWNER_USER
                     valueFrom:
                       secretKeyRef:
                         name: gitea-admin-secret
                         key: username
-
-                  - name: ADMIN_PASS
-                    valueFrom:
-                      secretKeyRef:
-                        name: gitea-admin-secret
-                        key: password
 
                   - name: DOMAIN
                     value: gitea.cloudbreaker.me
@@ -348,55 +341,83 @@ spec:
                       secretKeyRef:
                         key: token
                         name: gitea-admin-pat-secret
-
-                  # - name: REPOS
-                  #   value: |-
-                  #     ${schema.spec.mirrors}
-
+                    
+                  # use repos from the spec
+                  - name: REPOS
+                    value: ${schema.spec.mirrors}                  
                   args:
                     - | 
+               
                       which curl || (echo "curl not found!" && exit 1)
                       which jq || (echo "jq not found!" && exit 1)
+                      which yq || (echo "yq not found!" && exit 1)
                       which kubectl || (echo "kubectl not found!" && exit 1)
                       kubectl cluster-info
 
+                      echo "-------------"
 
-                      echo "Using Gitea Admin User: $ADMIN_USER"
+                      ## Setup
+                      idx=$((JOB_COMPLETION_INDEX+1))
+                      REPOS=$(echo "$REPOS" | sed '/^\s*$/d' | sed 's/^[ \t]*//;s/[ \t]*$//')
+                      REPO=$(echo "$REPOS" | awk 'NR=='"$idx"'')
+                      REPO_NAME=$(basename "$(dirname "$REPO")")
+                      BASENAME=$(basename  -s .git "$REPO")
+                      REPO_SLUG="$REPO_NAME-$BASENAME"
+                      REQUEST_BODY=$(jq --null-input \
+                          --arg repo_owner $OWNER_USER \
+                          --arg repo_name $REPO_SLUG \
+                          --arg clone_addr $REPO \
+                      '{ "clone_addr": $clone_addr,"repo_name": $repo_name, "repo_owner": $repo_owner, "mirror": false, "private": false  }')
+
+                      ## Logs / Debugging
+                      echo $REPOS
+                      # echo $REPO
+                      # echo $REPO_NAME
+                      # echo $BASENAME
+                      # echo $REPO_SLUG
+                      # echo $REQUEST_BODY
+
+                      echo "Using Gitea Admin User: $OWNER_USER"
                       echo "Using Gitea Domain: $DOMAIN"
-                      echo "Total repositories to process: ${schema.spec.mirrors}"
-          
+                      echo "Working on Job Completion Index: $JOB_COMPLETION_INDEX"
+                      echo "Processing repository: $REPO_NAME from '"$REPO"' (Index: $idx)"
+                      echo "Request Body: $REQUEST_BODY"
 
+          
+                      ## Requests
                       echo "Waiting for Gitea to be ready...http://$DOMAIN/api/v1/version"
                       until curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/api/v1/version" | grep -q "200"; do
-                        echo "Gitea is not ready yet. Retrying in 10 seconds..."
-                        curl -w "%{http_code}" "http://$DOMAIN/api/v1/version"
-                        sleep 10
+                          echo "Gitea is not ready yet. Retrying in 10 seconds..."
+                          curl -w "%{http_code}" "http://$DOMAIN/api/v1/version"
+                          sleep 10
                       done
                       echo "Gitea is ready!"
 
-
-                      # Blame ChatGPT for this mess. Ideally I could pass this as an ENV var directly but I could not figure it out
-                        RAW="${schema.spec.mirrors}"
-                        CLEAN="$(printf '%s\n' "$RAW" | tr -d '\r' | sed -e 's/^\[\s*//' -e 's/\s*]$//')"
-
-                        # turn spaces into one-per-line and drop blanks
-                        CLEAN_LINES="$(printf '%s\n' "$CLEAN" | tr ' ' '\n' | awk 'NF')"
-
-                        idx="$JOB_COMPLETION_INDEX"
-                        REPO="$(printf '%s\n' "$CLEAN_LINES" | sed -n "$((idx+1))p")"
-
-                        REPO_NAME=$(basename "$(dirname "$REPO")")-$(basename  -s .git "$REPO")
-
-                      echo "Processing repository: $REPO_NAME from $REPO (Index: $idx)"
-
                       echo "Attempting to create mirror repository"
                       response=$( curl -s \
-                        -H "Authorization: token $TOKEN" \
-                        -H "Content-Type: application/json" \
-                        -X POST http://$DOMAIN/api/v1/repos/migrate \
-                        -d '{ "clone_addr": "'"$REPO"'","repo_name": "'"$REPO_NAME"'", "repo_owner": "'"$ADMIN_USER"'", "mirror": false, "private": false  }')
+                          -H "Authorization: token $TOKEN" \
+                          -H "Content-Type: application/json" \
+                          -X POST http://$DOMAIN/api/v1/repos/migrate \
+                          -d "$REQUEST_BODY" )
 
-                      echo $response | jq '.message, .url'
+
+                      ## Response
+                      HTML_URL=$(echo $response | jq -r '.html_url // empty' )
+                      MESSAGE=$(echo $response | jq -r '.message // empty' )
+                      URL=$(echo $response | jq -r '.url // empty' )
+
+                      if [ -n "$HTML_URL" ]; then
+                          echo "Repository created successfully: $HTML_URL"
+                          exit 0
+                      else
+                          echo "Did NOT create repository."
+                      fi
+
+                      if [ -n "$MESSAGE" ]; then
+                          echo "Message: $MESSAGE"
+                          echo "URL: $URL"
+                          exit 0
+                      fi
 
 
     - id: generateActRunnerTokenJob
@@ -500,9 +521,6 @@ spec:
     - id: giteaActionsChart
       includeWhen:
         - ${schema.spec.actions == true}
-      readyWhen:
-        - ${giteaActionsChart.status.sync.status == "Synced" && giteaActionsChart.status.health.status == "Healthy"}
-
       template:
         apiVersion: argoproj.io/v1alpha1
         kind: Application
