@@ -446,50 +446,50 @@ spec:
                 existingSecretKey: "token"
                 giteaRootURL: "http://${schema.spec.subdomain}.${schema.spec.domain}/"
 
-    - id: deleteActRunnerTokenJob
-      includeWhen:
-        - ${schema.spec.actions == true}
-      readyWhen:
-        - ${deleteActRunnerTokenJob.status.completionTime != null}
-      template:
-        apiVersion: batch/v1
-        kind: Job
-        metadata:
-          name: delete-act-runner-token-job
-          namespace: gitea
-        spec:
-          ttlSecondsAfterFinished: 300
-          backoffLimit: 1
-          template:
-            spec:
-              restartPolicy: Never
-              # restartPolicy: OnFailure
-              serviceAccountName: gitea-admin-sa
-              containers:
-                - name: gitea-delete-act-runner-token-container
-                  image: 'codeberg.org/eddiemoya/kubectl:1.31'
-                  imagePullPolicy: Always
-                  command: ["/bin/sh", "-c"]
-                  env:
+    # - id: deleteActRunnerTokenJob
+    #   includeWhen:
+    #     - ${schema.spec.actions == true}
+    #   readyWhen:
+    #     - ${deleteActRunnerTokenJob.status.completionTime != null}
+    #   template:
+    #     apiVersion: batch/v1
+    #     kind: Job
+    #     metadata:
+    #       name: delete-act-runner-token-job
+    #       namespace: gitea
+    #     spec:
+    #       ttlSecondsAfterFinished: 300
+    #       backoffLimit: 1
+    #       template:
+    #         spec:
+    #           restartPolicy: Never
+    #           # restartPolicy: OnFailure
+    #           serviceAccountName: gitea-admin-sa
+    #           containers:
+    #             - name: gitea-delete-act-runner-token-container
+    #               image: 'codeberg.org/eddiemoya/kubectl:1.31'
+    #               imagePullPolicy: Always
+    #               command: ["/bin/sh", "-c"]
+    #               env:
 
-                  - name: SECRET_NAME
-                    value: gitea-runner-registration
+    #               - name: SECRET_NAME
+    #                 value: gitea-runner-registration
                   
 
-                  args:
-                    - | 
-                      which curl || (echo "curl not found!" && exit 1)
-                      which jq || (echo "jq not found!" && exit 1)
-                      which kubectl || (echo "kubectl not found!" && exit 1)
-                      kubectl cluster-info
+    #               args:
+    #                 - | 
+    #                   which curl || (echo "curl not found!" && exit 1)
+    #                   which jq || (echo "jq not found!" && exit 1)
+    #                   which kubectl || (echo "kubectl not found!" && exit 1)
+    #                   kubectl cluster-info
 
 
-                      # Check if secret alredy exists, and if it does exit early with zero status
-                      secretExists=$(kubectl get secret $SECRET_NAME -n gitea --ignore-not-found)
-                      if [ -n "$secretExists" ]; then
-                        echo "Secret $SECRET_NAME already exists. Exiting job."
-                        kubectl delete secret $SECRET_NAME -n gitea
-                      fi
+    #                   # Check if secret alredy exists, and if it does exit early with zero status
+    #                   secretExists=$(kubectl get secret $SECRET_NAME -n gitea --ignore-not-found)
+    #                   if [ -n "$secretExists" ]; then
+    #                     echo "Secret $SECRET_NAME already exists. Exiting job."
+    #                     kubectl delete secret $SECRET_NAME -n gitea
+    #                   fi
 
 
     - id: createMirrorRepoJob
