@@ -12,116 +12,70 @@ spec:
     kind: GiteaConfig
     spec:
  
-      env: string | default="staging" enum="staging,production"
+      env: string | default="staging" enum="dev,staging,production"
       subdomain: string | default="gitea"
       domain: string | required=true
 
-      ingressRequest: boolean | default=true
-      actions: boolean | default=true
+      ingress:
+        enabled: boolean | default=false
+        pathType  : string | default="Prefix" enum="ImplementationSpecific,Exact,Prefix"
+        annotations: map[string]string | default={}
+        host: string | default="${schema.spec.subdomain}.${schema.spec.domain}"   
+        path: string | default="/"
+        tls: 
+          enabled: boolean | default=false
+          hosts: string | default="${schema.spec.subdomain}.${schema.spec.domain}"
+          secretName: string | default="gitea-tls"
 
-      # space delimited list of repos to mirror
-      mirrors: string | default=[]
-      mirrorCount: integer | default=0
+      actions: 
+        enabled: boolean | default=true
+
+
+      mirrors:
+        create: boolean | default=false
+        repos: string | default=[] description="Space delimited list of git repository URLs to create as mirror repositories"
+        count: integer | default=0
+
+
+      config:
+        jobs:
+          ttlSecondsAfterFinished: integer | default=300         
+          
     
 
     status:
       argoApps:
-        gitea: ${giteaApp.status.sync.status == "Synced"}     
+        gitea: ${giteaApp.status.sync.status == "Synced"}  
+        giteaActions: ${giteaActionsChart.status.sync.status == "Synced"}
+
 
     
   resources:
-
-
-    - id: giteaApp
-      readyWhen:
-        - ${giteaApp.status.sync.status == "Synced"}
+    - id: giteaNamespace
       template:
-        apiVersion: argoproj.io/v1alpha1
-        kind: Application
+        apiVersion: v1
+        kind: Namespace
         metadata:
           name: gitea
-          namespace: argocd
           annotations:
             argocd.argoproj.io/instance: gitea
-            argocd.argoproj.io/sync-wave: "-10"
-            argocd.argoproj.io/hook: PreSync
-            # tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
-          finalizers:
-            - resources-finalizer.argocd.argoproj.io/background
-
-        spec:
-          project: default
-          
-          syncPolicy:
-            automated:
-              selfHeal: true
-              prune: true
-              allowEmpty: true
-            syncOptions:
-              - CreateNamespace=true
-              - Replace=false
-
-          destination:
-            server: https://kubernetes.default.svc
-            namespace: gitea
-
-          source:
-            repoURL: oci://docker.gitea.com/charts/gitea
-            targetRevision: 12.2.0
-            path: .
-            helm:
-              values: |
-                  crds:
-                    create: true
-                  service:
-                    ssh:
-                      type: LoadBalancer
-                      port: 2222
-
-                  gitea:
-                    config:
-                      actions:
-                        ENABLED: true
-                      server:
-                        ROOT_URL: http://${schema.spec.subdomain}.${schema.spec.domain}/
-                        DOMAIN: ${schema.spec.subdomain}.${schema.spec.domain}
-                        SSH_DOMAIN: ${schema.spec.subdomain}.${schema.spec.domain}
-                        HTTP_PORT: 3000
-                        SSH_PORT: 2222
-                    admin:
-                      existingSecret: gitea-admin-secret
-
-                  database:
-                    DB_TYPE: sqlite3
-                  session:
-                    PROVIDER: memory
-                  cache:
-                    ADAPTER: memory
-                  queue:
-                    TYPE: level
-                        
-                  valkey:
-                    enabled: true
-                    architecture: standalone
-
-                  postgresql:
-                    enabled: true
-
-                  postgresql-ha:
-                    enabled: false
-
-                  valkey-cluster:
-                    enabled: false
-
+            # argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
 
     - id: giteaRbac
+      includeWhen:
+        - ${schema.spec.actions.enabled == true}
+        - ${schema.spec.mirrors.create == true}
       template:
         apiVersion: v1
         kind: ServiceAccount
         metadata:
           name: gitea-admin-sa
           namespace: gitea
+
     - id: giteaRbacRole
+      includeWhen:
+        - ${schema.spec.actions.enabled == true}
+        - ${schema.spec.mirrors.create == true}
       template:
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRole
@@ -132,8 +86,11 @@ spec:
         - apiGroups: [""] # "" indicates the core API group
           resources: ["services", "secrets"]
           verbs: ["get", "watch", "list", "create", "write", "delete"]
+      
     - id: giteaRbacBinding
-
+      includeWhen:
+        - ${schema.spec.actions.enabled == true}
+        - ${schema.spec.mirrors.create == true}
       template:
           apiVersion: rbac.authorization.k8s.io/v1
           kind: ClusterRoleBinding
@@ -149,29 +106,306 @@ spec:
             name:  gitea-admin-service-reader
             apiGroup: rbac.authorization.k8s.io
 
-    - id: giteaIngressRequest
-      includeWhen:
-        - ${schema.spec.ingressRequest == true}
+    - id: giteaApp
+      readyWhen:
+        - ${giteaApp.status.sync.status == "Synced"}
       template:
-          apiVersion: kro.run/v1alpha1
-          kind: IngressRequest
-          metadata:
-            name: gitea
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          name: gitea
+          namespace: argocd
+          annotations:
+            argocd.argoproj.io/instance: gitea
+            argocd.argoproj.io/sync-wave: "-10"
+            argocd.argoproj.io/hook: PreSync
+            tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+          finalizers:
+            - resources-finalizer.argocd.argoproj.io/background
+
+        spec:
+          project: default
+          
+          syncPolicy:
+            automated:
+              selfHeal: true
+              prune: true
+              allowEmpty: true
+            syncOptions:
+              - CreateNamespace=false
+              - Replace=false
+
+          destination:
+            server: https://kubernetes.default.svc
             namespace: gitea
-            # annotations:
-            #   argocd.argoproj.io/instance: gitea
-            #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
-          spec:
-            env: staging
-            subdomain: gitea
-            service:
-              name: gitea-http
-              port: 3000
+
+          source:
+            repoURL: oci://docker.gitea.com/charts/gitea
+            targetRevision: 12.2.0
+            path: .
+            helm:
+              values: |
+                crds:
+                  create: true
+                valkey-cluster:
+                  enabled: false
+                  architecture: standalone
+                valkey:
+                  enabled: false
+                postgresql:
+                  enabled: false
+                postgresql-ha:
+                  enabled: false
+                persistence:
+                  enabled: false
+
+                gitea:
+                  admin:
+                    existingSecret: gitea-admin-secret
+                  config:
+                    actions:
+                      ENABLED: true
+                    server:
+                      ROOT_URL: http://${schema.spec.subdomain}.${schema.spec.domain}/
+                      HTTP1_1: false
+                      ALLOW_SIGNUP: false
+                    database:
+                      DB_TYPE: sqlite3
+                    session:
+                      PROVIDER: memory
+                    cache:
+                      ADAPTER: memory
+                    queue:
+                      TYPE: level
+
+                service:
+                  http:
+                    port: 3000
+                  ssh:
+                    port: 2222
+
+                ingress:
+                  enabled: ${schema.spec.ingress.enabled}
+                  annotations: {}
+                    # kubernetes.io/ingress.class: nginx
+                    # kubernetes.io/tls-acme: "true"
+  
+                  hosts:
+                    - host: ${schema.spec.ingress.host}
+                      paths:
+                        - path: ${schema.spec.ingress.path}
+                          pathType: ${schema.spec.ingress.pathType}
+                  tls:
+                    - secretName: ${schema.spec.ingress.tls.secretName}
+                      hosts:
+                      - ${schema.spec.ingress.tls.hosts}
+                      
+
+
+
+      # - id: giteaIngressRequest
+      #   includeWhen:
+      #     - ${schema.spec.ingress.enabled == true}
+      #   template:
+      #       apiVersion: kro.run/v1alpha1
+      #       kind: IngressRequest
+      #       metadata:
+      #         name: gitea
+      #         namespace: gitea
+      #         # annotations:
+      #         #   argocd.argoproj.io/instance: gitea
+      #         #   argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}        
+      #       spec:
+      #         env: staging
+      #         subdomain: gitea
+      #         service:
+      #           name: gitea-http
+      #           port: 3000
+
+
+
+    - id: generateActRunnerTokenJob
+      includeWhen:
+        - ${schema.spec.actions.enabled == true}
+      readyWhen:
+        - ${generateActRunnerTokenJob.status.completionTime != null}
+      template:
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: generate-act-runner-token
+          namespace: gitea
+        spec:
+          ttlSecondsAfterFinished: ${schema.spec.config.jobs.ttlSecondsAfterFinished}
+          backoffLimit: 1
+              
+          template:
+            spec:
+              restartPolicy: Never
+              serviceAccountName: gitea-admin-sa
+              containers:
+                - name: gitea-act-runner-token-container
+                  image: 'codeberg.org/eddiemoya/kubectl:1.31'
+                  imagePullPolicy: Always
+                  command: ["/bin/sh", "-c"]
+                  env:
+                  - name: ADMIN_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: gitea-admin-secret
+                        key: username
+
+                  - name: ADMIN_PASS
+                    valueFrom:
+                      secretKeyRef:
+                        name: gitea-admin-secret
+                        key: password
+
+                  - name: DOMAIN
+                    value: gitea.cloudbreaker.me
+
+                  # Destination secret where the token will be stored
+                  - name: SECRET_NAME
+                    value: gitea-runner-registration
+                  
+
+                  # Source of the token in gitea
+                  - name: TOKEN_NAME
+                    value: admin-pat
+
+                  - name: REMOTE_REPO
+                    value: https://codeberg.org/eddiemoya/docker.git
+
+
+                  args:
+                    - | 
+                      which curl || (echo "curl not found!" && exit 1)
+                      which jq || (echo "jq not found!" && exit 1)
+                      which kubectl || (echo "kubectl not found!" && exit 1)
+                      # kubectl cluster-info
+
+
+                      # Check if secret alredy exists, and if it does exit early with zero status
+                      secretExists=$(kubectl get secret $SECRET_NAME -n gitea --ignore-not-found)
+                      if [ -n "$secretExists" ]; then
+                        echo "Secret $SECRET_NAME already exists. Exiting job."
+                        exit 0
+                      fi
+
+                      echo "Waiting for Gitea to be ready...http://$DOMAIN/api/v1/version"
+                      until curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/api/v1/version" | grep -q "200"; do
+                        echo "Gitea is not ready yet. Retrying in 10 seconds..."
+                         curl -w "%{http_code}" "http://$DOMAIN/api/v1/version"
+                        sleep 10
+                      done
+                      echo "Gitea is ready!"
+
+                      echo "Attempting to generate Gitea Actions Runner registration token"
+                      echo "http://$DOMAIN/api/v1/admin/actions/runners/registration-token"
+
+                      response=$(curl \
+                        -s \
+                        -u "$ADMIN_USER:$ADMIN_PASS" \
+                        -H 'Content-Type: application/json' \
+                        -X POST "http://$DOMAIN/api/v1/admin/actions/runners/registration-token")
+                      
+                      token=$(echo "$response" | jq -r '.token')
+                      message=$(echo "$response" | jq -r '.message')
+                      echo $response | jq '.'
+
+                      if [ "$token" != "null" ] && [ -n "$token" ]; then
+                          echo "Created: Act Runner token created successfully."
+                          echo "Creating Kubernetes secret with the token..."
+                          kubectl create secret generic gitea-runner-registration --from-literal=token="$token" -n gitea
+                          echo "Created: 'gitea-runner-registration' created/updated successfully in namespace 'gitea'."
+                          exit 0
+                      fi
+
+    - id: giteaActionsChart
+      includeWhen:
+        - ${schema.spec.actions.enabled == true}
+      template:
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          name: gitea-actions
+          namespace: argocd
+          annotations:
+            argocd.argoproj.io/instance: gitea-actions
+            argocd.argoproj.io/sync-wave: "-10"
+            argocd.argoproj.io/hook: PreSync
+            argocd.argoproj.io/tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
+          finalizers:
+            - resources-finalizer.argocd.argoproj.io/background
+
+        spec:
+          project: default
+
+          syncPolicy:
+            automated:
+              selfHeal: true
+              prune: true
+              allowEmpty: true
+          
+            syncOptions:
+              - CreateNamespace=true
+              - Replace=true
+
+          destination:
+            server: https://kubernetes.default.svc
+            namespace: gitea
+
+          source:
+            repoURL: https://gitea.com/gitea/helm-actions.git
+            path: .
+            targetRevision: main
+            helm:
+              values: |
+                crds:
+                  create: true
+                enabled: true
+                existingSecret: gitea-runner-registration
+                existingSecretKey: "token"
+                giteaRootURL: http://gitea-http.gitea.svc.cluster.local:3000/
+                statefulset:
+                  actRunner:
+                    config: |
+                      log:
+                        level: debug
+                      cache:
+                        enabled: true
+                      container:
+                        force_pull: false
+                        valid_volumes:
+                          - '**'
+                        # image: ghcr.io/catthehacker/ubuntu:act-22.04
+                      runner:
+                        insecure: true
+                        labels:
+                          # - "ubuntu-22.04:docker://ghcr.io/catthehacker/ubuntu:act-22.04"
+                          - "ubuntu-latest:docker://gitea/runner-images/ubuntu-latest"                     
+                    # extraEnvs:
+                    #   - name: GITEA_INSTANCE_URL
+                    #     value: http://gitea-http.gitea.svc.cluster.local:3000
+                    #   - name: DOCKER_TLS_VERIFY
+                    #     value: "0"
+                    #   - name: DOCKER_HOST
+                    #     value: tcp://127.0.0.1:2376
+                    # dind:
+                    #   enabled: true
+                    #   service:
+                    #     enabled: true
+                    #   hostSocket: false
+                    #   tcpSocket: true
+                    #   port: 2376
+                    #   securityContext:
+                    #     privileged: true  
+
 
 
     - id: generateAdminPatJob
       includeWhen:
-        - ${size(schema.spec.mirrors) > 0}
+        - ${schema.spec.mirrors.create == true}
       readyWhen:
         - ${generateAdminPatJob.status.completionTime != null}
       template:
@@ -181,7 +415,7 @@ spec:
             name: generate-admin-pat
             namespace: gitea
           spec:
-            # ttlSecondsAfterFinished: 300
+            ttlSecondsAfterFinished: ${schema.spec.config.jobs.ttlSecondsAfterFinished}
             backoffLimit: 1
             podFailurePolicy:
               rules:
@@ -190,12 +424,10 @@ spec:
                   operator: In
                   values: [42]
                 action: Ignore
-
                 
             template:
               spec:
                 restartPolicy: Never
-                # restartPolicy: OnFailure
                 serviceAccountName: gitea-admin-sa
                 containers:
                   - name: gitea-admin-pat-container
@@ -226,9 +458,9 @@ spec:
 
                     args:
                       - | 
-                        # which curl || (echo "curl not found!" && exit 1)
-                        # which jq || (echo "jq not found!" && exit 1)
-                        # which kubectl || (echo "kubectl not found!" && exit 1)
+                        which curl || (echo "curl not found!" && exit 1)
+                        which jq || (echo "jq not found!" && exit 1)
+                        which kubectl || (echo "kubectl not found!" && exit 1)
                         # kubectl cluster-info
 
                         # Check if secret alredy exists, and if it does exit early with zero status
@@ -300,201 +532,9 @@ spec:
                         fi
 
 
-
-    - id: generateActRunnerTokenJob
-      includeWhen:
-        - ${schema.spec.actions == true}
-      readyWhen:
-        - ${generateActRunnerTokenJob.status.completionTime != null}
-      template:
-        apiVersion: batch/v1
-        kind: Job
-        metadata:
-          name: generate-act-runner-token
-          namespace: gitea
-        spec:
-          # ttlSecondsAfterFinished: 300
-          backoffLimit: 1
-              
-          template:
-            spec:
-              restartPolicy: Never
-              # restartPolicy: OnFailure
-              serviceAccountName: gitea-admin-sa
-              containers:
-                - name: gitea-act-runner-token-container
-                  image: 'codeberg.org/eddiemoya/kubectl:1.31'
-                  imagePullPolicy: Always
-                  command: ["/bin/sh", "-c"]
-                  env:
-                  - name: ADMIN_USER
-                    valueFrom:
-                      secretKeyRef:
-                        name: gitea-admin-secret
-                        key: username
-
-                  - name: ADMIN_PASS
-                    valueFrom:
-                      secretKeyRef:
-                        name: gitea-admin-secret
-                        key: password
-
-                  - name: DOMAIN
-                    value: gitea.cloudbreaker.me
-
-                  #Destination secret where the token will be stored
-                  - name: SECRET_NAME
-                    value: gitea-runner-registration
-                  
-
-                  # Source of the token in gitea
-                  - name: TOKEN_NAME
-                    value: admin-pat
-
-                  - name: REMOTE_REPO
-                    value: https://codeberg.org/eddiemoya/docker.git
-
-
-                  args:
-                    - | 
-                      # which curl || (echo "curl not found!" && exit 1)
-                      # which jq || (echo "jq not found!" && exit 1)
-                      # which kubectl || (echo "kubectl not found!" && exit 1)
-                      # kubectl cluster-info
-
-
-                      # Check if secret alredy exists, and if it does exit early with zero status
-                      secretExists=$(kubectl get secret $SECRET_NAME -n gitea --ignore-not-found)
-                      if [ -n "$secretExists" ]; then
-                        echo "Secret $SECRET_NAME already exists. Exiting job."
-                        exit 0
-                      fi
-
-                      echo "Waiting for Gitea to be ready...http://$DOMAIN/api/v1/version"
-                      until curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/api/v1/version" | grep -q "200"; do
-                        echo "Gitea is not ready yet. Retrying in 10 seconds..."
-                         curl -w "%{http_code}" "http://$DOMAIN/api/v1/version"
-                        sleep 10
-                      done
-                      echo "Gitea is ready!"
-
-                      echo "Attempting to generate Gitea Actions Runner registration token"
-                      echo "http://$DOMAIN/api/v1/admin/actions/runners/registration-token"
-
-                      response=$(curl \
-                        -s \
-                        -u "$ADMIN_USER:$ADMIN_PASS" \
-                        -H 'Content-Type: application/json' \
-                        -X POST "http://$DOMAIN/api/v1/admin/actions/runners/registration-token")
-                      
-                      token=$(echo "$response" | jq -r '.token')
-                      message=$(echo "$response" | jq -r '.message')
-                      echo $response | jq '.'
-
-                      if [ "$token" != "null" ] && [ -n "$token" ]; then
-                          echo "Created: Act Runner token created successfully."
-                          echo "Creating Kubernetes secret with the token..."
-                          kubectl create secret generic gitea-runner-registration --from-literal=token="$token" -n gitea
-                          echo "Created: 'gitea-runner-registration' created/updated successfully in namespace 'gitea'."
-                          exit 0
-                      fi
-
-    - id: giteaActionsChart
-      includeWhen:
-        - ${schema.spec.actions == true}
-      template:
-        apiVersion: argoproj.io/v1alpha1
-        kind: Application
-        metadata:
-          name: gitea-actions
-          namespace: argocd
-          annotations:
-            argocd.argoproj.io/instance: gitea-actions
-            argocd.argoproj.io/sync-wave: "-10"
-            argocd.argoproj.io/hook: PreSync
-            # tracking-id: ${schema.metadata.?annotations["argocd.argoproj.io/tracking-id"]}
-          finalizers:
-            - resources-finalizer.argocd.argoproj.io/background
-
-        spec:
-          project: default
-
-          syncPolicy:
-            automated:
-              selfHeal: true
-              prune: true
-              allowEmpty: true
-          
-            syncOptions:
-              - CreateNamespace=true
-              - Replace=true
-
-          destination:
-            server: https://kubernetes.default.svc
-            namespace: gitea
-
-          source:
-            repoURL: https://gitea.com/gitea/helm-actions.git
-            path: .
-            targetRevision: main
-            helm:
-              values: |
-                crds:
-                  create: true
-                enabled: true
-                existingSecret: gitea-runner-registration
-                existingSecretKey: "token"
-                giteaRootURL: "http://${schema.spec.subdomain}.${schema.spec.domain}/"
-
-    # - id: deleteActRunnerTokenJob
-    #   includeWhen:
-    #     - ${schema.spec.actions == true}
-    #   readyWhen:
-    #     - ${deleteActRunnerTokenJob.status.completionTime != null}
-    #   template:
-    #     apiVersion: batch/v1
-    #     kind: Job
-    #     metadata:
-    #       name: delete-act-runner-token-job
-    #       namespace: gitea
-    #     spec:
-    #       ttlSecondsAfterFinished: 300
-    #       backoffLimit: 1
-    #       template:
-    #         spec:
-    #           restartPolicy: Never
-    #           # restartPolicy: OnFailure
-    #           serviceAccountName: gitea-admin-sa
-    #           containers:
-    #             - name: gitea-delete-act-runner-token-container
-    #               image: 'codeberg.org/eddiemoya/kubectl:1.31'
-    #               imagePullPolicy: Always
-    #               command: ["/bin/sh", "-c"]
-    #               env:
-
-    #               - name: SECRET_NAME
-    #                 value: gitea-runner-registration
-                  
-
-    #               args:
-    #                 - | 
-    #                   which curl || (echo "curl not found!" && exit 1)
-    #                   which jq || (echo "jq not found!" && exit 1)
-    #                   which kubectl || (echo "kubectl not found!" && exit 1)
-    #                   kubectl cluster-info
-
-
-    #                   # Check if secret alredy exists, and if it does exit early with zero status
-    #                   secretExists=$(kubectl get secret $SECRET_NAME -n gitea --ignore-not-found)
-    #                   if [ -n "$secretExists" ]; then
-    #                     echo "Secret $SECRET_NAME already exists. Exiting job."
-    #                     kubectl delete secret $SECRET_NAME -n gitea
-    #                   fi
-
-
     - id: createMirrorRepoJob
-      # includeWhen:
-      #   - ${size(schema.spec.mirrors) > 0}
+      includeWhen:
+        - ${schema.spec.mirrors.create == true && schema.spec.mirrors.count > 0}
       readyWhen:
         - ${createMirrorRepoJob.status.completionTime != null}
       template:
@@ -505,9 +545,9 @@ spec:
           namespace: gitea
         spec:
           completionMode: Indexed
-          # ttlSecondsAfterFinished: 300
-          completions: ${schema.spec.mirrorCount}
-          parallelism: ${schema.spec.mirrorCount}
+          ttlSecondsAfterFinished: ${schema.spec.config.jobs.ttlSecondsAfterFinished}
+          completions: ${schema.spec.mirrors.count}
+          parallelism: ${schema.spec.mirrors.count}
           template:
             spec:
               restartPolicy: Never
@@ -534,9 +574,8 @@ spec:
                         key: token
                         name: gitea-admin-pat-secret
                     
-                  # use repos from the spec
                   - name: REPOS
-                    value: ${schema.spec.mirrors}                  
+                    value: ${schema.spec.mirrors.repos}                  
                   args:
                     - | 
                
@@ -544,7 +583,7 @@ spec:
                       which jq || (echo "jq not found!" && exit 1)
                       which yq || (echo "yq not found!" && exit 1)
                       which kubectl || (echo "kubectl not found!" && exit 1)
-                      kubectl cluster-info
+                      # kubectl cluster-info
 
                       echo "-------------"
 
@@ -563,19 +602,13 @@ spec:
 
                       ## Logs / Debugging
                       echo $REPOS
-                      # echo $REPO
-                      # echo $REPO_NAME
-                      # echo $BASENAME
-                      # echo $REPO_SLUG
-                      # echo $REQUEST_BODY
 
                       echo "Using Gitea Admin User: $OWNER_USER"
                       echo "Using Gitea Domain: $DOMAIN"
                       echo "Working on Job Completion Index: $JOB_COMPLETION_INDEX"
                       echo "Processing repository: $REPO_NAME from '"$REPO"' (Index: $idx)"
                       echo "Request Body: $REQUEST_BODY"
-
-          
+                      
                       ## Requests
                       echo "Waiting for Gitea to be ready...http://$DOMAIN/api/v1/version"
                       until curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/api/v1/version" | grep -q "200"; do
