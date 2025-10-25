@@ -41,7 +41,6 @@ spec:
         jobs:
           ttlSecondsAfterFinished: integer | default=300         
           
-    
 
     status:
       argoApps:
